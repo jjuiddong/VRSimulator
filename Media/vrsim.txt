@@ -1,0 +1,315 @@
+#
+# StrikerX motion script
+#
+# component = input, output, mixer, module
+#
+# device = udp, tcp, serial, shm (shared memory), joystick
+# 	- udp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- tcp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- serial
+#		- portnum = 1
+#		- baudrate = 115200
+#	- shm
+#		- shmname = name
+#	- joystick
+#		- output value = @xaxis, @yaxis, @zaxis, @xrot, @yrot, @zrot, @slider
+#
+#
+# module
+#	- inputvalue = $1
+#	- outputvalue = $2
+#
+#
+# mixer
+#	- default input value
+#		- @roll, @pitch, @yaw, @heave
+#	- default output value
+#		- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#
+#
+# output
+#	- outputlog = serialoutput.txt
+#
+#
+#
+# funcitons
+#	- atan(y, x)
+#	- clamp(value, min, max)
+#	- scale(value, center, rate)
+#
+#
+# global variable
+#	- sharedmemory_name = motionmem
+#	- log = 0
+#
+#
+# motion variable
+#	- @roll, @pitch, @yaw, @heave
+#	- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
+#	- @motion_speed
+#	- @yaw_speed
+#
+
+sharedmemory_name = motionmem
+log = 0
+
+
+:input
+{
+	device = joystick
+
+
+	:math
+	{
+		$var = $var + 1
+
+		@roll = @xaxis
+		@pitch = @yaxis
+		@yaw = @xrot
+		@heave = @slider
+
+	}
+
+
+	:modulation
+	{
+
+		# joystick input
+
+		yaw_kp = 1
+		yaw_ki = 0
+		yaw_kd = 0
+
+		pitch_kp = 1
+		pitch_ki = 0
+		pitch_kd = 0
+
+		roll_kp = 1
+		roll_ki = 0
+		roll_kd = 0
+
+		heave_kp = 0
+		heave_ki = 0
+		heave_kd = 0
+
+
+		yaw_recover_enable = 0
+		yaw_max_difference_enable = 0
+		yaw_recover_target = 0
+		yaw_recover_proportion = 0.02
+		yaw_max_difference = 0.5
+		yaw_max_difference_proportion = 0.2
+		yaw_range = 6.283
+
+
+		pitch_recover_enable = 0
+		pitch_max_difference_enable = 0
+		pitch_recover_target = 0
+		pitch_recover_proportion = 0.02
+		pitch_max_difference = 3.1415
+		pitch_max_difference_proportion = 0.2
+		pitch_range = 6.283
+
+
+		roll_recover_enable = 0
+		roll_max_difference_enable = 0
+		roll_recover_target = 0
+		roll_recover_proportion = 0.02
+		roll_max_difference = 3.1415
+		roll_max_difference_proportion = 0.2
+		roll_range = 6.283
+
+
+		heave_recover_enable = 0
+		heave_max_difference_enable = 0
+		heave_recover_target = 0
+		heave_recover_proportion = 0.1
+		heave_max_difference = 100000
+		heave_max_difference_proportion = 0.2
+		heave_range = 1000000
+		heave_range_enable = 1
+		heave_range_max = 18.5
+		heave_range_min = -18.5
+
+
+		spline_enable = 0
+
+		yaw_c1 = 0
+		yaw_c2 = 1
+		yaw_c3 = 1000
+
+		pitch_c1 = 0
+		pitch_c2 = 1
+		pitch_c3 = 1000
+
+		roll_c1 = 0
+		roll_c2 = 1
+		roll_c3 = 1000
+
+		heave_c1 = 0
+		heave_c2 = 1
+		heave_c3 = 1000
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+
+	}
+}
+
+
+
+:mixer
+{
+	:init
+	{
+		@motion_speed = 1
+		@yaw_speed = 0
+		@shoot_enable = 0
+	}
+
+	:math
+	{
+		@roll_fin = clamp( scale( @roll_mod, 10000, @motion_speed), 0, 20000 )
+		@pitch_fin = clamp( scale( @pitch_mod, 10000, @motion_speed), 0, 20000 )
+		@yaw_fin = clamp( scale( @yaw_mod, 10000, @motion_speed), 0, 20000 )
+		@heave_fin = clamp( scale( @heave_mod, 10000, @motion_speed), 0, 20000 )
+
+		@roll_fin2 = ((20000 - @roll_fin) - 10000) / 10000
+		@pitch_fin2 = (@pitch_fin - 10000) / 10000
+		@yaw_fin2 = (@yaw_fin - 10000) / 10000
+		@heave_fin2 = (@heave_fin - 10000) / 10000
+
+	}
+}
+
+
+:output
+{
+	device = serial
+	portnum = 1
+	baudrate = 115200
+
+
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"0"
+		Z
+	}
+
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000007Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000008Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000001Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000002Z
+	}		
+
+
+}
+
+
+:output
+{
+	device = udp
+	ip = 127.0.0.1
+	port = 20778
+
+
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"0"
+		Z
+	}
+
+
+	:format
+	{
+		A
+		@roll
+		@pitch
+		@yaw
+		@heave
+		","
+		@roll_fin2
+		@pitch_fin2
+		@yaw_fin2
+		@heave_fin2
+		","
+		$1006
+		$1007
+		$1008
+		+
+		-
+		"@"
+		Z		
+	}
+
+
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"0000"
+		Z
+	}
+
+
+
+}
+
