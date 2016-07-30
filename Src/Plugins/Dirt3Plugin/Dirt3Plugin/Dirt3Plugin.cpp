@@ -6,6 +6,7 @@
 
 cDirt3 g_dirt3;
 
+
 void GetGameName(char *gameName)
 {
 	strcpy(gameName, "DiRT 3");
@@ -24,6 +25,11 @@ int MotionInit(int hWnd)
 	return g_dirt3.Init((HWND)hWnd);
 }
 
+int MotionUpdateScript()
+{
+	return g_dirt3.UpdateMotionScript();
+}
+
 
 void MotionEnd()
 {
@@ -39,5 +45,4 @@ void MotionClear()
 {
 	g_dirt3.Clear();
 	motion::cController2::Release();
-	cvproc::imagematch::cMatchManager::Release();
 }

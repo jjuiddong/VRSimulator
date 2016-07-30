@@ -1,10 +1,10 @@
 //
-// 2016-07-11, jjuiddong
+// 2016-07-13, jjuiddong
 // Dirt3 모션 처리
 //
 #pragma once
 
-class cDirt3
+class cStrikerX
 {
 public:
 	enum STATE {
@@ -27,8 +27,8 @@ public:
 		PRT_STOP,
 	};
 
-	cDirt3();
-	virtual ~cDirt3();
+	cStrikerX();
+	virtual ~cStrikerX();
 
 	int Init(HWND hWnd);
 	int UpdateMotionScript();
@@ -40,8 +40,8 @@ public:
 protected:
 	void Delay(const float delaySeconds, STATE nextState);
 	void SendSerialPort();
-	void CheckAutoStart();
-	void CheckAutoStop();
+	void CheckAutoStart(const float deltaSeconds);
+	void CheckAutoStop(const float deltaSeconds);
 
 
 protected:
@@ -56,5 +56,16 @@ protected:
 	float m_lastLabTime;
 	int m_lapTimeUpCount;
 	int m_sameLapTimeCount;
+
+	// strikerx
+	bool m_oldGameState;
+	float m_oldRoll;
+	float m_oldPitch;
+	float m_oldYaw;
+	float m_oldHeave;
+	float m_oldTime;
+	int m_sameDataCount;
+	int m_differentDataCount;
+	float m_checkDiffTime;
 };
 

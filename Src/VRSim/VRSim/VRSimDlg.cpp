@@ -45,6 +45,7 @@ BEGIN_MESSAGE_MAP(CVRSimDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SERVOSTART, &CVRSimDlg::OnBnClickedButtonServostart)
 	ON_BN_CLICKED(IDC_BUTTON_SERVOSTOP, &CVRSimDlg::OnBnClickedButtonServostop)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_SPEED, &CVRSimDlg::OnNMCustomdrawSliderSpeed)
+	ON_BN_CLICKED(IDC_BUTTON_UPDATE, &CVRSimDlg::OnBnClickedButtonUpdate)
 END_MESSAGE_MAP()
 
 
@@ -80,6 +81,9 @@ BOOL CVRSimDlg::OnInitDialog()
 	ReadConfigFile();
 	//----------------------------------------------------------------
 
+	dbg::RemoveLog();
+	dbg::RemoveErrLog();
+
 // 	m_games.push_back({ "8", "MGX_VR" });
 // 	m_games.push_back({ "DiRT 3", "DiRT 3" });
 // 	m_games.push_back({ "StrikerX", "StrikerX" });
@@ -87,13 +91,20 @@ BOOL CVRSimDlg::OnInitDialog()
 	list<string> exts;
 	exts.push_back("dll");
 	list<string> files;
-	common::CollectFiles(exts, "./", files);
+	common::CollectFiles(exts, "./Plugins/", files);
 
 	for each (auto file in files)
 	{
 		sPluginInfo plugin;
 		if (plugin.Load(file))
+		{
 			m_plugins.push_back(plugin);
+		}
+		else
+		{
+			::AfxMessageBox(formatw("Error!! Load Plugin [%s] errorCode=%d \n", file.c_str()).c_str(), GetLastError() );
+			return FALSE;
+		}
 	}
 
 	return TRUE;
@@ -172,7 +183,7 @@ bool CVRSimDlg::Run()
 			++fps;
 			if (curT - lastFpsTime > 1000)
 			{
-				//m_staticFPS.SetWindowText(str2wstr(common::format("FPS : %d", fps)).c_str());
+				m_staticFPS.SetWindowText(common::formatw("FPS : %d", fps).c_str());
 				fps = 0;
 				lastFpsTime = curT;
 			}
@@ -212,7 +223,10 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 			m_strGameTitle = str2wstr(m_plugins[i].outputGameName).c_str();
 
 			// 게임 발견.  초기화
-			m_plugins[i].MotionInit((int)m_hWnd);
+			if (m_plugins[i].MotionInit((int)m_hWnd) <= 0)
+			{
+				::AfxMessageBox(L"Error Motion Init \n");
+			}
 
 			SetBackgroundColor(g_blueColor);
 			UpdateData(FALSE);
@@ -370,4 +384,11 @@ void CVRSimDlg::OnNMCustomdrawSliderSpeed(NMHDR *pNMHDR, LRESULT *pResult)
 // 	script::g_symbols["@motion_speed"].type = script::FIELD_TYPE::T_FLOAT;
 // 	script::g_symbols["@motion_speed"].fVal = pos;
 	*pResult = 0;
+}
+
+
+void CVRSimDlg::OnBnClickedButtonUpdate()
+{
+	if (m_selectGame >= 0)
+		m_plugins[m_selectGame].MotionUpdateScript();
 }

@@ -56,4 +56,5 @@ public:
 	float m_editSpeed;
 	afx_msg void OnNMCustomdrawSliderSpeed(NMHDR *pNMHDR, LRESULT *pResult);
 	CString m_strGameTitle;
+	afx_msg void OnBnClickedButtonUpdate();
 };

@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "Dirt3.h"
+#include "mgxvr.h"
 
 using namespace motion;
 using namespace std;
 
 
-cDirt3::cDirt3()
+cMGXVR::cMGXVR()
 	: m_state(OFF)
 	, m_delaySeconds(0)
 	, m_lastLabTime(0)
@@ -16,26 +16,26 @@ cDirt3::cDirt3()
 {
 }
 
-cDirt3::~cDirt3()
+cMGXVR::~cMGXVR()
 {
 }
 
 
-int cDirt3::Init(HWND hWnd)
+int cMGXVR::Init(HWND hWnd)
 {
 	m_state = SERVOON;
 	m_hWnd = hWnd;
-	return motion::cController2::Get()->Init(hWnd, "Plugins/dirt3.txt");
+	return motion::cController2::Get()->Init(hWnd, "Plugins/mgxvr.txt");
 }
 
 
-int cDirt3::UpdateMotionScript()
+int cMGXVR::UpdateMotionScript()
 {
-	return motion::cController2::Get()->Reload("Plugins/dirt3.txt");
+	return motion::cController2::Get()->Reload("Plugins/mgxvr.txt");
 }
 
 
-int cDirt3::Update(const float deltaSeconds)
+int cMGXVR::Update(const float deltaSeconds)
 {
 	int reVal = 1; // Servo 가 Off 될 때, 0으로 설정된다.
 
@@ -111,13 +111,13 @@ int cDirt3::Update(const float deltaSeconds)
 }
 
 
-void cDirt3::End()
+void cMGXVR::End()
 {
 	m_state = STOP;
 }
 
 
-void cDirt3::Clear()
+void cMGXVR::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
@@ -127,7 +127,7 @@ void cDirt3::Clear()
 }
 
 
-void cDirt3::Delay(const float delaySeconds, STATE nextState)
+void cMGXVR::Delay(const float delaySeconds, STATE nextState)
 {
 	m_delaySeconds = delaySeconds;
 	m_nextState = nextState;
@@ -135,7 +135,7 @@ void cDirt3::Delay(const float delaySeconds, STATE nextState)
 }
 
 
-void cDirt3::SendSerialPort()
+void cMGXVR::SendSerialPort()
 {
 	for (int i = 0; i < 5; ++i)
 	{
@@ -145,9 +145,9 @@ void cDirt3::SendSerialPort()
 }
 
 
-void cDirt3::CheckAutoStart()
+void cMGXVR::CheckAutoStart()
 {
- 	const float lapTime = script::g_symbols["@laptime"].fVal;
+	const float lapTime = script::g_symbols["@laptime"].fVal;
 	if (lapTime > m_lastLabTime)
 	{
 		++m_lapTimeUpCount;
@@ -164,7 +164,7 @@ void cDirt3::CheckAutoStart()
 }
 
 
-void cDirt3::CheckAutoStop()
+void cMGXVR::CheckAutoStop()
 {
 	const float lapTime = script::g_symbols["@laptime"].fVal;
 	const float distance = script::g_symbols["@distance"].fVal;

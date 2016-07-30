@@ -11,6 +11,7 @@ extern "C"
 	typedef void(__cdecl *__GetGameName) (char *gameName);
 	typedef void(__cdecl *__GetOutputGameName) (char *gameName);
 	typedef int(__cdecl *__MotionInit) (int hwnd);
+	typedef int(__cdecl *__MotionUpdateScript) ();
 	typedef int (__cdecl *__MotionUpdate) (const float deltaSeconds);
 	typedef void(__cdecl *__MotionEnd) ();
 	typedef void(__cdecl *__MotionClear) ();
@@ -24,6 +25,7 @@ struct sPluginInfo
 	__GetGameName GetGameName;
 	__GetOutputGameName GetOutputGameName;
 	__MotionInit MotionInit;
+	__MotionUpdateScript MotionUpdateScript;
 	__MotionUpdate MotionUpdate;
 	__MotionEnd MotionEnd;
 	__MotionClear MotionClear;

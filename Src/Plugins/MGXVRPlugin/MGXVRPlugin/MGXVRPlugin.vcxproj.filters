@@ -6,13 +6,13 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="StrikerXPlugin.h" />
-    <ClInclude Include="StrikerX.h" />
+    <ClInclude Include="mgxvr.h" />
+    <ClInclude Include="MGXVRPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="MGXVRPlugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="StrikerXPlugin.cpp" />
-    <ClCompile Include="StrikerX.cpp" />
+    <ClCompile Include="mgxvr.cpp" />
   </ItemGroup>
 </Project>

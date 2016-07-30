@@ -1,10 +1,10 @@
 //
-// 2016-07-11, jjuiddong
-// Dirt3 葛记 贸府
+// 2016-07-14, jjuiddong
+// 赣脚扒X VR 葛记 贸府
 //
 #pragma once
 
-class cDirt3
+class cMGXVR
 {
 public:
 	enum STATE {
@@ -27,8 +27,8 @@ public:
 		PRT_STOP,
 	};
 
-	cDirt3();
-	virtual ~cDirt3();
+	cMGXVR();
+	virtual ~cMGXVR();
 
 	int Init(HWND hWnd);
 	int UpdateMotionScript();
