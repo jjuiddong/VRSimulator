@@ -1,0 +1,329 @@
+﻿<Window x:Class="pCarsAPI_Demo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:pCarsAPI_Demo"
+        Title="pCars API Demo" 
+        Height="550" 
+        Width="725" 
+        Background="White" 
+        Foreground="Black" 
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <local:lapTimeConverter x:Key="lapTimeConverter"/>
+        <local:sectTimeConverter x:Key="sectTimeConverter"/>
+        <local:zeroDigitFloatAllowZeroConverter x:Key="zeroDigitFloatAllowZeroConverter" />
+        <local:gearConverter x:Key="gearConverter" />
+        <local:twoDigitFloatAllowZeroConverter x:Key="twoDigitFloatAllowZeroConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Track Location:"/>
+                <TextBlock Text="{Binding mTrackLocation}" Foreground="#FF1E38DC" Margin="5,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Track Variant:"/>
+                <TextBlock Text="{Binding mTrackVariant}" Foreground="#FF1E38DC" Margin="5,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Car Name:"/>
+                <TextBlock Text="{Binding mCarName}" Foreground="#FF1E38DC" Margin="5,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Car Class:"/>
+                <TextBlock Text="{Binding mCarClassName}" Foreground="#FF1E38DC" Margin="5,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Vertical">
+            <TextBlock Text="World Fastest Lap Time"/>
+
+            <DataGrid CanUserResizeRows="False" 
+                      AutoGenerateColumns="False" 
+                      CanUserSortColumns="False" 
+                      IsReadOnly="True" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="False" 
+                      Background="{x:Null}" 
+                      RowHeaderWidth="0" 
+                      ItemsSource="{Binding mWorldFastestLapTime}" 
+                      ColumnWidth="Auto" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalScrollBarVisibility="Disabled" 
+                      HorizontalScrollBarVisibility="Disabled" 
+                      FontFamily="/Fonts/#Zero Threes" 
+                      FontStretch="ExtraExpanded" 
+                      FontSize="12" 
+                      BorderThickness="0" 
+                      Padding="0" 
+                      GridLinesVisibility="None" 
+                      Focusable="False" 
+                      IsHitTestVisible="False">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="Black" />
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="#FF0B0BE4" />
+                        <Setter Property="FontSize" Value="14" />
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding ltLapTime, Converter={StaticResource lapTimeConverter}}" Width="1.25*"/>
+                    <DataGridTextColumn Header="S1" Binding="{Binding ltSect1, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S2" Binding="{Binding ltSect2, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S3" Binding="{Binding ltSect3, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Vertical">
+            <TextBlock Text="Personal Fastest Lap Time"/>
+
+            <DataGrid CanUserResizeRows="False" 
+                      AutoGenerateColumns="False" 
+                      CanUserSortColumns="False" 
+                      IsReadOnly="True" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="False" 
+                      Background="{x:Null}" 
+                      RowHeaderWidth="0" 
+                      ItemsSource="{Binding mPersonalFastestLapTime}" 
+                      ColumnWidth="Auto" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalScrollBarVisibility="Disabled" 
+                      HorizontalScrollBarVisibility="Disabled" 
+                      FontFamily="/Fonts/#Zero Threes" 
+                      FontStretch="ExtraExpanded" 
+                      FontSize="12" 
+                      BorderThickness="0" 
+                      Padding="0" 
+                      GridLinesVisibility="None" 
+                      Focusable="False" 
+                      IsHitTestVisible="False">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="Black" />
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="#FF0B0BE4" />
+                        <Setter Property="FontSize" Value="14" />
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding ltLapTime, Converter={StaticResource lapTimeConverter}}" Width="1.25*"/>
+                    <DataGridTextColumn Header="S1" Binding="{Binding ltSect1, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S2" Binding="{Binding ltSect2, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S3" Binding="{Binding ltSect3, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="4" Orientation="Vertical">
+            <TextBlock Text="Session Fastest Lap Time"/>
+
+            <DataGrid CanUserResizeRows="False" 
+                      AutoGenerateColumns="False" 
+                      CanUserSortColumns="False" 
+                      IsReadOnly="True" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="False" 
+                      Background="{x:Null}" 
+                      RowHeaderWidth="0" 
+                      ItemsSource="{Binding mSessionFastestLapTime}" 
+                      ColumnWidth="Auto" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalScrollBarVisibility="Disabled" 
+                      HorizontalScrollBarVisibility="Disabled" 
+                      FontFamily="/Fonts/#Zero Threes" 
+                      FontStretch="ExtraExpanded" 
+                      FontSize="12" 
+                      BorderThickness="0" 
+                      Padding="0" 
+                      GridLinesVisibility="None" 
+                      Focusable="False" 
+                      IsHitTestVisible="False">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="Black" />
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="#FF0B0BE4" />
+                        <Setter Property="FontSize" Value="14" />
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding ltLapTime, Converter={StaticResource lapTimeConverter}}" Width="1.25*"/>
+                    <DataGridTextColumn Header="S1" Binding="{Binding ltSect1, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S2" Binding="{Binding ltSect2, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S3" Binding="{Binding ltSect3, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="4" Grid.Column="4" Orientation="Vertical">
+            <TextBlock Text="Current Lap Time"/>
+
+            <DataGrid CanUserResizeRows="False" 
+                      AutoGenerateColumns="False" 
+                      CanUserSortColumns="False" 
+                      IsReadOnly="True" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="False" 
+                      Background="{x:Null}" 
+                      RowHeaderWidth="0" 
+                      ItemsSource="{Binding mCurrentLapTime}" 
+                      ColumnWidth="Auto" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalScrollBarVisibility="Disabled" 
+                      HorizontalScrollBarVisibility="Disabled" 
+                      FontFamily="/Fonts/#Zero Threes" 
+                      FontStretch="ExtraExpanded" 
+                      FontSize="12" 
+                      BorderThickness="0" 
+                      Padding="0" 
+                      GridLinesVisibility="None" 
+                      Focusable="False" 
+                      IsHitTestVisible="False">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="Black" />
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="#FF0B0BE4" />
+                        <Setter Property="FontSize" Value="14" />
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding ltLapTime, Converter={StaticResource lapTimeConverter}}" Width="1.25*"/>
+                    <DataGridTextColumn Header="S1" Binding="{Binding ltSect1, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S2" Binding="{Binding ltSect2, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                    <DataGridTextColumn Header="S3" Binding="{Binding ltSect3, Converter={StaticResource sectTimeConverter}}"  Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" >
+            <TextBlock Text="RPM" HorizontalAlignment="Right"/>
+            <TextBlock Text="Speed" HorizontalAlignment="Right"/>
+            <TextBlock Text="Throttle" HorizontalAlignment="Right"/>
+            <TextBlock Text="Brake" HorizontalAlignment="Right"/>
+            <TextBlock Text="Clutch" HorizontalAlignment="Right"/>
+            <TextBlock Text="Steering" HorizontalAlignment="Right"/>
+            <TextBlock Text="Gear" HorizontalAlignment="Right"/>
+            <TextBlock Text="Fuel Level" HorizontalAlignment="Right"/>
+            <TextBlock Text="Oil Temp" HorizontalAlignment="Right"/>
+            <TextBlock Text="Oil KPa" HorizontalAlignment="Right"/>
+            <TextBlock Text="Water Temp" HorizontalAlignment="Right"/>
+            <TextBlock Text="Water KPa" HorizontalAlignment="Right"/>
+            <TextBlock Text="Aero Damage" HorizontalAlignment="Right"/>
+            <TextBlock Text="Engine Damage" HorizontalAlignment="Right"/>
+            <TextBlock Text="Ang Vel 0" HorizontalAlignment="Right"/>
+            <TextBlock Text="Ang Vel 1" HorizontalAlignment="Right"/>
+            <TextBlock Text="Ang Vel 2" HorizontalAlignment="Right"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="5" Margin="5,0,0,0">
+            <TextBlock Text="{Binding mRPM, Converter={StaticResource zeroDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC" />
+            <TextBlock Text="{Binding mSpeed, Converter={StaticResource zeroDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mThrottle, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrake, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mClutch, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mSteering, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mGear, Converter={StaticResource gearConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mFuelLevel, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mOilTempCelsius, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mOilPressureKPa, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mWaterTempCelsius, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mWaterPressureKPa, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mAeroDamage, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mEngineDamage, Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+
+            <TextBlock Text="{Binding mAngularVelocity[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mAngularVelocity[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mAngularVelocity[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+
+        </StackPanel>
+        <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" HorizontalAlignment="Right" >
+
+            <TextBlock Text="Tyre Temp FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+            <TextBlock Text="Tyre Slip FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+            <TextBlock Text="Tyre Wear FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+            <TextBlock Text="Brake Tem FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+            <TextBlock Text="Brake Dam FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+            <TextBlock Text="Susp Dam FL" HorizontalAlignment="Right"/>
+            <TextBlock Text="FR" HorizontalAlignment="Right"/>
+            <TextBlock Text="RL" HorizontalAlignment="Right"/>
+            <TextBlock Text="RR" HorizontalAlignment="Right"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="3" Grid.Row="0" Grid.RowSpan="5" Margin="6,0,0,0">
+
+            <TextBlock Text="{Binding mTyreTemp[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreTemp[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreTemp[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreTemp[3], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreSlipSpeed[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC" />
+            <TextBlock Text="{Binding mTyreSlipSpeed[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC" />
+            <TextBlock Text="{Binding mTyreSlipSpeed[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreSlipSpeed[3], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreWear[0], Converter={StaticResource zeroDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC" />
+            <TextBlock Text="{Binding mTyreWear[1], Converter={StaticResource zeroDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreWear[2], Converter={StaticResource zeroDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mTyreWear[3], Converter={StaticResource zeroDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeTempCelsius[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeTempCelsius[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeTempCelsius[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeTempCelsius[3], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeDamage[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeDamage[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeDamage[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mBrakeDamage[3], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC" />
+            <TextBlock Text="{Binding mSuspensionDamage[0], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mSuspensionDamage[1], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mSuspensionDamage[2], Converter={StaticResource twoDigitFloatAllowZeroConverter}}" Foreground="#FF1E38DC"/>
+            <TextBlock Text="{Binding mSuspensionDamage[3], Converter={StaticResource twoDigitFloatAllowZeroConverter}}"  Foreground="#FF1E38DC"/>
+
+        </StackPanel>
+
+    </Grid>
+</Window>
