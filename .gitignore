@@ -219,3 +219,5 @@ Source/media/udpstream_temp.udp
 *.opendb
 
 Source/MotionMonitor/.vs/config/applicationhost.config
+Src/VRSim/VRSim/errlog.txt
+Src/VRSim/VRSim/log.txt
