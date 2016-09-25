@@ -1,0 +1,432 @@
+#
+# WarThunder motion script
+#
+# component = input, output, mixer, module
+#
+# device = udp, tcp, serial, shm (shared memory)
+# 	- udp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- tcp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- serial
+#		- portnum = 1
+#		- baudrate = 115200
+#	- shm
+#		- shmname = name
+#		- startindex = 10001
+#	- custom
+#
+#
+# module
+#	- inputvalue = $1
+#	- outputvalue = $2
+#
+#
+# mixer
+#	- default input value
+#		- @roll, @pitch, @yaw, @heave
+#	- default output value
+#		- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#
+#
+# functions
+#	- floor(x)
+#	- round(x)
+#	- atan(y, x)
+#	- clamp(value, min, max)
+#	- scale(value, center, rate)
+#
+#
+# global variable
+#	- sharedmemory_name = motionmem
+#	- log = 0
+#
+#
+# motion variable
+#	- @roll, @pitch, @yaw, @heave
+#	- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
+#	- @motion_speed
+#	- @yaw_speed
+#
+
+
+sharedmemory_name = motionmem
+log = 0
+
+
+
+:input
+{
+	device = custom
+
+	:protocol
+	{
+		# @state_valid
+		# @state_aileron
+		# @state_elevator
+		# @state_rudder
+		# @state_flaps
+		# @state_gear
+		# @state_TAS
+		# @state_IAS
+		# @state_M
+		# @state_AoA
+		# @state_AoS
+		# @state_Ny
+		# @state_Vy
+		# @state_Wx
+		# @state_throttle
+		# @state_RPM_throttle
+		# @state_mixture
+		# @state_radiator
+		# @state_compressor_stage
+		# @state_magneto
+		# @state_power
+		# @state_RPM
+		# @state_manifold_pressure
+		# @state_oil_temp
+		# @state_pitch
+		# @state_thrust
+		# @state_efficiency
+
+		# @indicator_valid
+		# @indicator_speed
+		# @indicator_pedals1
+		# @indicator_pedals2
+		# @indicator_pedals3
+		# @indicator_stick_elevator
+		# @indicator_stick_ailerons
+		# @indicator_vario
+		# @indicator_altitude_hour
+		# @indicator_altitude_min
+		# @indicator_altitude_10k
+		# @indicator_aviahorizon_roll
+		# @indicator_aviahorizon_pitch
+		# @indicator_bank
+		# @indicator_turn
+		# @indicator_compass
+		# @indicator_compass1
+		# @indicator_clock_hour
+		# @indicator_clock_min
+		# @indicator_clock_sec
+		# @indicator_manifold_pressure
+		# @indicator_rpm
+		# @indicator_oil_pressure
+		# @indicator_oil_temperature
+		# @indicator_water_temperature
+		# @indicator_mixture
+		# @indicator_fuel1
+		# @indicator_gears
+		# @indicator_gears_lamp
+		# @indicator_flaps
+		# @indicator_trimmer
+		# @indicator_throttle
+		# @indicator_weapon1
+		# @indicator_weapon2
+		# @indicator_prop_pitch
+	}
+
+
+	:math
+	{
+		$var4 = $var4 + 1
+
+		@laptime = 0
+		@distance = 0
+
+		@roll = @indicator_aviahorizon_roll
+		@pitch = @indicator_aviahorizon_pitch
+		@yaw = angle2rad( @indicator_compass )
+		@heave = 0
+	}
+
+
+	:modulation
+	{
+		# udp input
+
+		yaw_kp = 0.2
+		yaw_ki = 0.0
+		yaw_kd = -0.2
+
+		pitch_kp = 0.4
+		pitch_ki = 0.0
+		pitch_kd = -0.4
+
+		roll_kp = 0.4
+		roll_ki = 0.0
+		roll_kd = -0.3
+
+		heave_kp = 0.1
+		heave_ki = 0
+		heave_kd = 0
+
+
+		yaw_recover_enable = 1
+		yaw_max_difference_enable = 1
+		yaw_recover_target = 0
+		yaw_recover_proportion = 0.02
+		yaw_max_difference = 0.5
+		yaw_max_difference_proportion = 0.2
+		yaw_range = 6.283
+
+
+		pitch_recover_enable = 1
+		pitch_max_difference_enable = 1
+		pitch_recover_target = 0
+		pitch_recover_proportion = 0.02
+		pitch_max_difference = 3.1415
+		pitch_max_difference_proportion = 0.2
+		pitch_range = 6.283
+
+
+		roll_recover_enable = 1
+		roll_max_difference_enable = 1
+		roll_recover_target = 0
+		roll_recover_proportion = 0.02
+		roll_max_difference = 3.1415
+		roll_max_difference_proportion = 0.2
+		roll_range = 6.283
+
+
+		heave_recover_enable = 1
+		heave_max_difference_enable = 0
+		heave_recover_target = 0
+		heave_recover_proportion = 0.1
+		heave_max_difference = 100000
+		heave_max_difference_proportion = 0.2
+		heave_range = 1000000
+		heave_range_enable = 1
+		heave_range_max = 18.5
+		heave_range_min = -18.5
+		heave_use_x0_calcvalue = 0
+
+
+		spline_enable = 0
+
+		yaw_c1 = 0
+		yaw_c2 = 40000
+		yaw_c3 = 10000
+
+		pitch_c1 = 0
+		pitch_c2 = 50000
+		pitch_c3 = 10000
+
+		roll_c1 = 0
+		roll_c2 = 60000
+		roll_c3 = 10000
+
+		heave_c1 = 0
+		heave_c2 = 30000
+		heave_c3 = 10000
+	}
+}
+
+
+
+:module
+{
+	inputvalue = $36
+	outputvalue = $surge
+
+	:modulation
+	{
+		# surge speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 100000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = 30000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+:module
+{
+	inputvalue = $35
+	outputvalue = $sway
+
+	:modulation
+	{
+		# sway speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 10000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = -30000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+
+:module
+{
+	inputvalue = @speed
+	outputvalue = $fan
+
+	:modulation
+	{
+		# speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.02
+		max_difference = 10
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+
+		c1 = 0
+		c2 = 3
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+
+:amplitude_module
+{
+	:modulation
+	{
+		# amplitude modulation
+
+		kp = 1
+		ki = 0
+		kd = 0
+
+		recover_enable = 0
+		max_difference_enable = 0
+		piclamp_enable = 0
+		range_enable = 1
+		min_range = 0
+		max_range = 10000
+
+		c1 = 0
+		c2 = 1
+		c3 = 0
+	}
+
+
+	:math
+	{
+
+		@checksum = @roll_fin + @pitch_fin + @yaw_fin + @heave_fin + @fan_fin
+		@checksum2 = floor(@roll_fin) + floor(@pitch_fin) + floor(@yaw_fin) + floor(@heave_fin) + floor(@fan_fin)
+	}
+}
+
+
+
+:mixer
+{
+	:init
+	{
+		@motion_speed = 1
+		@yaw_speed = 1
+		@checksum = 0
+	}
+
+
+	:math
+	{
+		@roll_fin = clamp( scale( @roll_mod + $sway, 10000, @motion_speed), 0, 20000 )
+		@pitch_fin = clamp( scale( @pitch_mod + $surge, 10000, @motion_speed), 0, 20000 )
+		@yaw_fin = clamp( scale( (@yaw_mod * @yaw_speed) + 10000, 10000, @motion_speed), 0, 20000 )
+		@heave_fin = clamp( scale( @heave_mod, 10000, @motion_speed), 0, 20000 )
+		@fan_fin = clamp( $fan, 0, 100 )
+	}
+}
+
+
+:output
+{
+	device = serial
+	portnum = 1
+	baudrate = 115200
+
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		@fan_fin, %3d
+		@checksum, %6d
+		"0"
+		Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000000600077Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000000600088Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000000600011Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000000600022Z
+	}
+
+}
+
+
+
