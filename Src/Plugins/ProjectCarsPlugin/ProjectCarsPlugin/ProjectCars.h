@@ -1,10 +1,10 @@
 //
-// 2016-07-11, jjuiddong
-// Dirt3 Motion
+// 2016-09-24, jjuiddong
+// ProjectCars Motion
 //
 #pragma once
 
-class cDirt3
+class cProjectCars
 {
 public:
 	enum STATE {
@@ -27,8 +27,8 @@ public:
 		PRT_STOP,
 	};
 
-	cDirt3();
-	virtual ~cDirt3();
+	cProjectCars();
+	virtual ~cProjectCars();
 
 	int Init(HWND hWnd);
 	int UpdateMotionScript();

@@ -84,10 +84,6 @@ BOOL CVRSimDlg::OnInitDialog()
 	dbg::RemoveLog();
 	dbg::RemoveErrLog();
 
-// 	m_games.push_back({ "8", "MGX_VR" });
-// 	m_games.push_back({ "DiRT 3", "DiRT 3" });
-// 	m_games.push_back({ "StrikerX", "StrikerX" });
-
 	list<string> exts;
 	exts.push_back("dll");
 	list<string> files;
@@ -148,6 +144,7 @@ void CVRSimDlg::OnBnClickedOk()
 void CVRSimDlg::OnBnClickedCancel()
 {
 	m_isLoop = false;
+	m_state = EXIT;
 
 	for each (auto plugin in m_plugins)
 		FreeLibrary(plugin.lib);
@@ -174,8 +171,8 @@ bool CVRSimDlg::Run()
 		}
 
 		const int curT = timeGetTime();
-		const float deltaSeconds = (float)(curT - oldT) * 0.001f; // 1초가 경과되면 1이된다.
-		if (deltaSeconds > 0.02f)
+		const float deltaSeconds = (float)(curT - oldT) * 0.001f;
+		if (deltaSeconds > 0.02f) // 50 frames
 		{
 			oldT = curT;
 
@@ -205,13 +202,14 @@ void CVRSimDlg::MainLoop(const float deltaSeconds)
 	case DETECT_GAME: DetectGameLoop(deltaSeconds); break;
 	case MOTION_LOOP: MotionLoop(deltaSeconds); break;
 	case MOTION_END_LOOP: MotionEndLoop(deltaSeconds); break;
+	case EXIT: break;
 	default: assert(0);break;
 	}
 }
 
 
-// 실행되고 있는 게임을 검사한다.
-// 플러그인에 있는 게임이라면, 모션을 시작한다.
+// detect running game 
+// if plugins game, start motion
 void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 {
 	for (u_int i=0; i < m_plugins.size(); ++i)
@@ -238,7 +236,7 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 
 void CVRSimDlg::MotionLoop(const float deltaSeconds)
 {
-	if (m_selectGame < 0)
+	if (m_plugins.empty() || (m_selectGame < 0))
 	{
 		goto not_detect_game;
 	}
@@ -251,10 +249,11 @@ void CVRSimDlg::MotionLoop(const float deltaSeconds)
 	m_plugins[m_selectGame].MotionUpdate(deltaSeconds);
 	return;
 
+
 not_detect_game:
 	m_state = MOTION_END_LOOP;
 	m_strGameTitle = "";
-	m_plugins[m_selectGame].MotionEnd(); // 모션 종료
+	m_plugins[m_selectGame].MotionEnd();
 	SetBackgroundColor(g_grayColor);
 	UpdateData(FALSE);
 }
@@ -262,16 +261,20 @@ not_detect_game:
 
 void CVRSimDlg::MotionEndLoop(const float deltaSeconds)
 {
+	if (m_plugins.empty())
+		return;
+
 	const int result = m_plugins[m_selectGame].MotionUpdate(deltaSeconds);
 	if (result == 0)
-	{ // 모션 장치가 완전히 종료되었을 때.
+	{ // motion device finish
 		m_state = DETECT_GAME;
-		m_plugins[m_selectGame].MotionClear(); // 모션 초기화
+		m_plugins[m_selectGame].MotionClear();
 		UpdateData(FALSE);
 	}
 }
 
 
+// check running game
 bool CVRSimDlg::IsLiveGame(const string &gameName)
 {
 	const HWND hwnd = ::FindWindowA(NULL, gameName.c_str());
@@ -289,7 +292,7 @@ void CVRSimDlg::OnBnClickedButtonDetails()
 		GetWindowRect(wr);
 		wr.bottom = wr.top + (int)(wr.Height() * 1.f / EXPAND_RATE);
 		MoveWindow(wr);
-		//m_buttonDetails.SetWindowTextW(L"View Details >>");
+		m_buttonDetails.SetWindowTextW(L"View Details >>");
 	}
 	else
 	{
@@ -297,7 +300,7 @@ void CVRSimDlg::OnBnClickedButtonDetails()
 		GetWindowRect(wr);
 		wr.bottom = wr.top + (int)(wr.Height() * EXPAND_RATE);
 		MoveWindow(wr);
-		//m_buttonDetails.SetWindowTextW(L"View Details <<");
+		m_buttonDetails.SetWindowTextW(L"<< View Details");
 	}
 
 	m_isViewDetails = !m_isViewDetails;

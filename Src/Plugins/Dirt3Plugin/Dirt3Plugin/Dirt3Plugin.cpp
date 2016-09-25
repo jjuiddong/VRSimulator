@@ -13,7 +13,6 @@ void GetGameName(char *gameName)
 }
 
 
-// 매니저에 출력할 게임 타이틀 이름
 void GetOutputGameName(char *gameTitleName)
 {
 	strcpy(gameTitleName, "DiRT 3");

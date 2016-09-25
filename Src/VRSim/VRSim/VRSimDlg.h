@@ -25,7 +25,7 @@ protected:
 
 
 protected:
-	enum STATE { DETECT_GAME, MOTION_LOOP, MOTION_END_LOOP};
+	enum STATE { DETECT_GAME, MOTION_LOOP, MOTION_END_LOOP, EXIT};
 
 	STATE m_state;	
 	int m_selectGame;

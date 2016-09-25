@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "Dirt3.h"
+#include "ProjectCars.h"
 
 using namespace motion;
 using namespace std;
 
 
-cDirt3::cDirt3()
+cProjectCars::cProjectCars()
 	: m_state(OFF)
 	, m_delaySeconds(0)
 	, m_lastLabTime(0)
@@ -16,26 +16,26 @@ cDirt3::cDirt3()
 {
 }
 
-cDirt3::~cDirt3()
+cProjectCars::~cProjectCars()
 {
 }
 
 
-int cDirt3::Init(HWND hWnd)
+int cProjectCars::Init(HWND hWnd)
 {
 	m_state = SERVOON;
 	m_hWnd = hWnd;
-	return motion::cController2::Get()->Init(hWnd, "Plugins/dirt3.txt");
+	return motion::cController2::Get()->Init(hWnd, "Plugins/projectcars.txt");
 }
 
 
-int cDirt3::UpdateMotionScript()
+int cProjectCars::UpdateMotionScript()
 {
-	return motion::cController2::Get()->Reload("Plugins/dirt3.txt");
+	return motion::cController2::Get()->Reload("Plugins/projectcars.txt");
 }
 
 
-int cDirt3::Update(const float deltaSeconds)
+int cProjectCars::Update(const float deltaSeconds)
 {
 	int reVal = 1; // return 0, when servo off
 
@@ -111,13 +111,13 @@ int cDirt3::Update(const float deltaSeconds)
 }
 
 
-void cDirt3::End()
+void cProjectCars::End()
 {
 	m_state = STOP;
 }
 
 
-void cDirt3::Clear()
+void cProjectCars::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
@@ -127,7 +127,7 @@ void cDirt3::Clear()
 }
 
 
-void cDirt3::Delay(const float delaySeconds, STATE nextState)
+void cProjectCars::Delay(const float delaySeconds, STATE nextState)
 {
 	m_delaySeconds = delaySeconds;
 	m_nextState = nextState;
@@ -135,7 +135,7 @@ void cDirt3::Delay(const float delaySeconds, STATE nextState)
 }
 
 
-void cDirt3::SendSerialPort()
+void cProjectCars::SendSerialPort()
 {
 	for (int i = 0; i < 5; ++i)
 	{
@@ -145,9 +145,9 @@ void cDirt3::SendSerialPort()
 }
 
 
-void cDirt3::CheckGameStart()
+void cProjectCars::CheckGameStart()
 {
- 	const float lapTime = script::g_symbols["@laptime"].fVal;
+	const float lapTime = script::g_symbols["@laptime"].fVal;
 	if (lapTime > m_lastLabTime)
 	{
 		++m_lapTimeUpCount;
@@ -164,7 +164,7 @@ void cDirt3::CheckGameStart()
 }
 
 
-void cDirt3::CheckGameStop()
+void cProjectCars::CheckGameStop()
 {
 	const float lapTime = script::g_symbols["@laptime"].fVal;
 	const float distance = script::g_symbols["@distance"].fVal;
