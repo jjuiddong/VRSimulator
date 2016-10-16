@@ -5,7 +5,7 @@
 *.pydevproject
 .project
 .metadata
-bin/
+#bin/
 tmp/
 *.tmp
 *.bak
@@ -47,7 +47,7 @@ local.properties
 [Rr]elease/
 x64/
 build/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 
 # MSTest test Results
@@ -221,3 +221,8 @@ Source/media/udpstream_temp.udp
 Source/MotionMonitor/.vs/config/applicationhost.config
 Src/VRSim/VRSim/errlog.txt
 Src/VRSim/VRSim/log.txt
+
+*.iobj
+*.ipdb
+*.exp
+

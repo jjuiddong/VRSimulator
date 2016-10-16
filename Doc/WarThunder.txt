@@ -1,0 +1,13 @@
+
+
+localhost:8111
+localhost:8111/state
+localhost:8111/indicators
+
+
+게임 중이 아니면, 
+localhost:8111/indicators 
+	- valid:false
+
+
+

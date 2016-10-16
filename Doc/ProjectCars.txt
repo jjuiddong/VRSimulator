@@ -1,0 +1,9 @@
+
+Project Cars Setting
+
+	- option -> visual -> hardware -> shared memory On
+
+	- 게임이 풀화면으로 실행되면, 다른 창의 3D 그래픽이 안나오는 경우가
+	  있다. 같이 확인하려면, Project Cars 는 윈도우 모드로 실행시키자.
+
+

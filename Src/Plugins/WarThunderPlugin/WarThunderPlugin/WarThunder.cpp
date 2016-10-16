@@ -13,9 +13,7 @@ bool CustomModuleCallback(const motion::sComponent *parentComp, const string *pr
 cWarThunder::cWarThunder()
 	: m_state(OFF)
 	, m_delaySeconds(0)
-	, m_lastLabTime(0)
-	, m_lapTimeUpCount(0)
-	, m_sameLapTimeCount(0)
+	, m_validCount(0)
 	, m_hWnd(NULL)
 {
 }
@@ -127,9 +125,7 @@ void cWarThunder::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
-	m_lastLabTime = 0;
-	m_lapTimeUpCount = 0;
-	m_sameLapTimeCount = 0;
+	m_validCount = 0;
 }
 
 
@@ -153,46 +149,35 @@ void cWarThunder::SendSerialPort()
 
 void cWarThunder::CheckGameStart()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	if (lapTime > m_lastLabTime)
+	const float valid = script::g_symbols["@indicator_valid"].fVal;
+	if (valid > 0)
 	{
-		++m_lapTimeUpCount;
-		if (m_lapTimeUpCount > 5)
+		++m_validCount;
+		if (m_validCount > 5)
 		{
 			// start motion
 			m_state = START;
-			m_lapTimeUpCount = 0;
-			m_sameLapTimeCount = 0;
+			m_validCount = 0;
 		}
 	}
-
-	m_lastLabTime = lapTime;
 }
 
 
 void cWarThunder::CheckGameStop()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	const float distance = script::g_symbols["@distance"].fVal;
-	if ((lapTime == m_lastLabTime) && (m_lastLabTime == 0) && (distance != 0))
+	const float valid = script::g_symbols["@indicator_valid"].fVal;
+	if (valid <= 0.f)
 	{
-		// game end, motion stop
-		m_state = TOREADY;
-	}
-	else if (lapTime == m_lastLabTime) // when show pause menu
-	{
-		++m_sameLapTimeCount;
-		if (m_sameLapTimeCount > 20)
+		++m_validCount;
+		if (m_validCount > 20)
 		{
 			m_state = TOREADY;
 		}
 	}
 	else
 	{
-		m_sameLapTimeCount = 0;
+		m_validCount = 0;
 	}
-
-	m_lastLabTime = lapTime;
 }
 
 

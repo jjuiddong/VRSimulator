@@ -9,9 +9,7 @@ using namespace std;
 cProjectCars::cProjectCars()
 	: m_state(OFF)
 	, m_delaySeconds(0)
-	, m_lastLabTime(0)
-	, m_lapTimeUpCount(0)
-	, m_sameLapTimeCount(0)
+	, m_delayCount(0)
 	, m_hWnd(NULL)
 {
 }
@@ -121,9 +119,7 @@ void cProjectCars::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
-	m_lastLabTime = 0;
-	m_lapTimeUpCount = 0;
-	m_sameLapTimeCount = 0;
+	m_delayCount = 0;
 }
 
 
@@ -147,45 +143,35 @@ void cProjectCars::SendSerialPort()
 
 void cProjectCars::CheckGameStart()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	if (lapTime > m_lastLabTime)
+	const int gamestate = (int)round(script::g_symbols["@gamestate"].fVal);
+	if (2 == gamestate)
 	{
-		++m_lapTimeUpCount;
-		if (m_lapTimeUpCount > 5)
+		++m_delayCount;
+		if (m_delayCount > 5)
 		{
 			// start motion
 			m_state = START;
-			m_lapTimeUpCount = 0;
-			m_sameLapTimeCount = 0;
+			m_delayCount = 0;
 		}
 	}
-
-	m_lastLabTime = lapTime;
 }
 
 
 void cProjectCars::CheckGameStop()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	const float distance = script::g_symbols["@distance"].fVal;
-	if ((lapTime == m_lastLabTime) && (m_lastLabTime == 0) && (distance != 0))
+	const int gamestate = (int)round(script::g_symbols["@gamestate"].fVal);
+	if (gamestate != 2)
 	{
-		// game end, motion stop
-		m_state = TOREADY;
-	}
-	else if (lapTime == m_lastLabTime) // when show pause menu
-	{
-		++m_sameLapTimeCount;
-		if (m_sameLapTimeCount > 20)
+		++m_delayCount;
+		if (m_delayCount > 20)
 		{
 			m_state = TOREADY;
+			m_delayCount = 0;
 		}
 	}
 	else
 	{
-		m_sameLapTimeCount = 0;
+		m_delayCount = 0;
 	}
-
-	m_lastLabTime = lapTime;
 }
 
