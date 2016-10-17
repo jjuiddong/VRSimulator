@@ -69,29 +69,29 @@ log = 0
 	:protocol
 	{
 		8, int # $1 version + build version
-		4, int # $2 game state
-		6892, int # $3 0=Exit, 1=FrontEnd, 2=InGamePlaying, 3=InGamePause
-		4, float # $2 orientation x
-		4, float # $3 orientation y
-		4, float # $4 orientation z
-		4, float # $5 local velocity x
-		4, float # $6 local velocity y
-		4, float # $7 local velocity z
-		4, float # $8 world velocity x
-		4, float # $9 world velocity y
-		4, float # $10 world velocity z
-		4, float # $11 angular velocity x
-		4, float # $12 angular velocity y
-		4, float # $13 angular velocity z
-		4, float # $14 local acceleration x
-		4, float # $15 local acceleration y
-		4, float # $16 local acceleration z
-		4, float # $17 world acceleration x
-		4, float # $18 world acceleration y
-		4, float # $19 world acceleration z
-		4, float # $20 world extents center x
-		4, float # $21 world extents center y
-		4, float # $22 world extents center z
+		4, int # $2 game state (0=Exit, 1=FrontEnd, 2=InGamePlaying, 3=InGamePause)
+		6892, int # $3 
+		4, float # $4 orientation x
+		4, float # $5 orientation y
+		4, float # $6 orientation z
+		4, float # $7 local velocity x
+		4, float # $8 local velocity y
+		4, float # $9 local velocity z
+		4, float # $10 world velocity x
+		4, float # $11 world velocity y
+		4, float # $12 world velocity z
+		4, float # $13 angular velocity x
+		4, float # $14 angular velocity y
+		4, float # $15 angular velocity z
+		4, float # $16 local acceleration x
+		4, float # $17 local acceleration y
+		4, float # $18 local acceleration z
+		4, float # $19 world acceleration x
+		4, float # $20 world acceleration y
+		4, float # $21 world acceleration z
+		4, float # $22 world extents center x
+		4, float # $23 world extents center y
+		4, float # $24 world extents center z
 
 	}
 
@@ -104,9 +104,9 @@ log = 0
 		@distance = 0
 		@gamestate = $2
 
-		@roll = -$7
-		@pitch = -$5
-		@yaw = $6
+		@roll = -$6
+		@pitch = -$4
+		@yaw = $5
 		@heave = 0
 	}
 

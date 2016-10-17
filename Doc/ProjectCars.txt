@@ -7,3 +7,21 @@ Project Cars Setting
 	  있다. 같이 확인하려면, Project Cars 는 윈도우 모드로 실행시키자.
 
 
+Car Space
+	- Front = Z
+	- Left = X
+	- Up = Y
+
+	- Local Accel X = Roll
+	- Local Accel Y = Heave
+	- Local Accel Z = Pitch
+
+
+UDP Analyzer
+	- Output Window
+		- roll = -$6
+		- pitch = -$4
+		- yaw = -&5
+
+
+
