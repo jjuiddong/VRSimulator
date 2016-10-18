@@ -9,7 +9,8 @@ using namespace std;
 cDirt3::cDirt3()
 	: m_state(OFF)
 	, m_delaySeconds(0)
-	, m_lastLabTime(0)
+	, m_lastLapTime(0)
+	, m_lapTime(0)
 	, m_lapTimeUpCount(0)
 	, m_sameLapTimeCount(0)
 	, m_hWnd(NULL)
@@ -121,7 +122,7 @@ void cDirt3::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
-	m_lastLabTime = 0;
+	m_lastLapTime = 0;
 	m_lapTimeUpCount = 0;
 	m_sameLapTimeCount = 0;
 }
@@ -148,7 +149,7 @@ void cDirt3::SendSerialPort()
 void cDirt3::CheckGameStart()
 {
  	const float lapTime = script::g_symbols["@laptime"].fVal;
-	if (lapTime > m_lastLabTime)
+	if (lapTime > m_lastLapTime)
 	{
 		++m_lapTimeUpCount;
 		if (m_lapTimeUpCount > 5)
@@ -160,7 +161,7 @@ void cDirt3::CheckGameStart()
 		}
 	}
 
-	m_lastLabTime = lapTime;
+	m_lastLapTime = lapTime;
 }
 
 
@@ -168,12 +169,15 @@ void cDirt3::CheckGameStop()
 {
 	const float lapTime = script::g_symbols["@laptime"].fVal;
 	const float distance = script::g_symbols["@distance"].fVal;
-	if ((lapTime == m_lastLabTime) && (m_lastLabTime == 0) && (distance != 0))
+	if ((lapTime == m_lastLapTime) && (m_lastLapTime == 0) && (distance != 0))
 	{
-		// game end, motion stop
+		// when game end, motion stop
 		m_state = TOREADY;
+
+		cController2::Get()->WriteGameResult("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
+		cController2::Get()->WriteGameResultToDB("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
 	}
-	else if (lapTime == m_lastLabTime) // when show pause menu
+	else if (lapTime == m_lastLapTime) // when show pause menu
 	{
 		++m_sameLapTimeCount;
 		if (m_sameLapTimeCount > 20)
@@ -186,6 +190,8 @@ void cDirt3::CheckGameStop()
 		m_sameLapTimeCount = 0;
 	}
 
-	m_lastLabTime = lapTime;
+	m_lastLapTime = lapTime;
+	if (0 != lapTime)
+		m_lapTime = lapTime;
 }
 

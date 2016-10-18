@@ -53,7 +53,8 @@ protected:
 	float m_delaySeconds;
 
 	// labTime
-	float m_lastLabTime;
+	float m_lastLapTime;
+	float m_lapTime;
 	int m_lapTimeUpCount;
 	int m_sameLapTimeCount;
 };
