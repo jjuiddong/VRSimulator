@@ -175,7 +175,17 @@ void cDirt3::CheckGameStop()
 		m_state = TOREADY;
 
 		cController2::Get()->WriteGameResult("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
-		cController2::Get()->WriteGameResultToDB("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
+
+		const string dbIP = cController2::Get()->m_script.m_program->cmd->values["db_ip"];
+		if (!dbIP.empty())
+		{
+			const int dbPort = atoi(cController2::Get()->m_script.m_program->cmd->values["db_port"].c_str());
+			const string dbID = cController2::Get()->m_script.m_program->cmd->values["db_id"];
+			const string dbPasswd = cController2::Get()->m_script.m_program->cmd->values["db_passwd"];
+			const string databaseName = cController2::Get()->m_script.m_program->cmd->values["database_name"];
+			cController2::Get()->WriteGameResultToDB(dbIP, dbPort, dbID, dbPasswd, databaseName, 
+				"Dirt3", "UserID", "track name", m_lapTime, 0, 0);
+		}
 	}
 	else if (lapTime == m_lastLapTime) // when show pause menu
 	{
