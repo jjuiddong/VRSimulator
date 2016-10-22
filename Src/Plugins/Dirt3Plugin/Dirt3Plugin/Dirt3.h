@@ -2,6 +2,9 @@
 // 2016-07-11, jjuiddong
 // Dirt3 Motion
 //
+// 2016-10-21
+//		- time up state
+//
 #pragma once
 
 class cDirt3
@@ -14,6 +17,8 @@ public:
 		START,
 		PLAY,
 		TOREADY,
+		TIMEUP_STOP,
+		TIMEUP_TOREADY,
 		STOP,
 		SERVOOFF,
 		DELAY,
@@ -42,7 +47,7 @@ protected:
 	void SendSerialPort();
 	void CheckGameStart();
 	void CheckGameStop();
-
+	void CheckGameFinish();
 
 protected:
 	STATE m_state;
@@ -52,7 +57,8 @@ protected:
 	STATE m_nextState;
 	float m_delaySeconds;
 
-	// labTime
+	// lapTime
+	int m_startTime;
 	float m_lastLapTime;
 	float m_lapTime;
 	int m_lapTimeUpCount;

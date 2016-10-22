@@ -1,11 +1,11 @@
 //
 // 2016-07-10, jjuiddong
-// 플러그인에 관련된 내용을 정의한다.
+// plugin fuction
 //
 #pragma once
 
 
-// 플러그인 DLL 함수 
+// Plugin DLL Function
 extern "C"
 {
 	typedef void(__cdecl *__GetGameName) (char *gameName);
@@ -13,13 +13,15 @@ extern "C"
 	typedef int(__cdecl *__MotionInit) (int hwnd);
 	typedef int(__cdecl *__MotionUpdateScript) ();
 	typedef int (__cdecl *__MotionUpdate) (const float deltaSeconds);
+	typedef void (__cdecl *__MotionSetSymbol) (char *symbol, const float data);
+	typedef void(__cdecl *__MotionSetOutputFormat) (const int formatIndex);
 	typedef void(__cdecl *__MotionEnd) ();
 	typedef void(__cdecl *__MotionClear) ();
 	typedef float(__cdecl *__MotionGetSymbolFloat)(char*);
 }
 
 
-// 플러그인 정보 구조체
+// Plugin Information Structure
 struct sPluginInfo
 {
 	__GetGameName GetGameName;
@@ -27,6 +29,8 @@ struct sPluginInfo
 	__MotionInit MotionInit;
 	__MotionUpdateScript MotionUpdateScript;
 	__MotionUpdate MotionUpdate;
+	__MotionSetSymbol MotionSetSymbol;
+	__MotionSetOutputFormat MotionSetOutputFormat;
 	__MotionEnd MotionEnd;
 	__MotionClear MotionClear;
 	__MotionGetSymbolFloat MotionGetSymbolFloat;

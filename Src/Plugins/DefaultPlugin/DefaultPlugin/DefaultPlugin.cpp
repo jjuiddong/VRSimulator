@@ -1,56 +1,50 @@
-// Dirt3Plugin.cpp : Defines the exported functions for the DLL application.
+// DefaultPlugin.cpp : Defines the exported functions for the DLL application.
 //
 
 #include "stdafx.h"
-#include "Dirt3.h"
 
-cDirt3 g_dirt3;
-
+using namespace motion;
 
 void GetGameName(char *gameName)
 {
-	strcpy(gameName, "DiRT 3");
+	strcpy(gameName, "Default Plugin, does not match any window name");
 }
-
 
 void GetOutputGameName(char *gameTitleName)
 {
-	strcpy(gameTitleName, "DiRT 3");
 }
 
 
 int MotionInit(int hWnd)
 {
-	return g_dirt3.Init((HWND)hWnd);
+	int result = motion::cController2::Get()->Init((HWND)hWnd, "Plugins/default.txt")? 1 : 0;
+	motion::cController2::Get()->Start();
+	return result;
 }
 
 int MotionUpdateScript()
 {
-	return g_dirt3.UpdateMotionScript();
+	return motion::cController2::Get()->Reload("Plugins/default.txt");
 }
 
 
 void MotionEnd()
 {
-	g_dirt3.End();
 }
 
 int MotionUpdate(const float deltaSeconds)
 {
-	return g_dirt3.Update(deltaSeconds); 
+	return cController2::Get()->Update(deltaSeconds);
 }
 
 void MotionClear()
 {
- 	g_dirt3.Clear();
- 	motion::cController2::Release();
+	motion::cController2::Release();
 }
 
 // set symbol data
 void MotionSetSymbol(const char *key, const float data)
 {
-	script::g_symbols[key].type = script::FIELD_TYPE::T_FLOAT;
-	script::g_symbols[key].fVal = data;
 }
 
 // set output format index

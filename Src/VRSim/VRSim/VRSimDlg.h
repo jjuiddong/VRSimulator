@@ -22,10 +22,12 @@ protected:
 	void MotionLoop(const float deltaSeconds);
 	void MotionEndLoop(const float deltaSeconds);
 	bool IsLiveGame(const string &gameName);
+	void UpdatePlayInfo();
 
 
 protected:
 	enum STATE { DETECT_GAME, MOTION_LOOP, MOTION_END_LOOP, EXIT};
+	enum BOARD_CMD { SERVO_ON=1, SERVO_OFF, SERVO_START, SERVO_STOP };
 
 	STATE m_state;	
 	int m_selectGame;
@@ -38,7 +40,6 @@ protected:
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
@@ -57,4 +58,12 @@ public:
 	afx_msg void OnNMCustomdrawSliderSpeed(NMHDR *pNMHDR, LRESULT *pResult);
 	CString m_strGameTitle;
 	afx_msg void OnBnClickedButtonUpdate();
+	CStatic m_staticPlayGames;
+	CStatic m_staticTotalGames;
+	int m_radioAxisType;
+	afx_msg void OnBnClickedRadioAxis3();
+	afx_msg void OnBnClickedRadioAxis4();
+	afx_msg void OnClose();
+	CString m_editLimitTime;
+	afx_msg void OnEnChangeEditLimitMinute();
 };

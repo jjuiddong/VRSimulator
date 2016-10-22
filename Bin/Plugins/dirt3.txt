@@ -43,6 +43,12 @@
 # global variable
 #	- sharedmemory_name = motionmem
 #	- log = 0
+#	gameresult database table
+#	- db_ip = 192.168.0.4
+#	- db_port = 3306
+#	- db_id = root
+#	- db_passwd = 11111
+#	- database_name = dirt3
 #
 #
 # motion variable
@@ -51,11 +57,19 @@
 #	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
 #	- @motion_speed
 #	- @yaw_speed
+#	- @amplitude
+#	- @amplitude0
 #
 
 
 sharedmemory_name = motionmem
 log = 0
+
+db_ip = 192.168.0.4
+db_port = 3306
+db_id = root
+db_passwd = 1111
+database_name = dirt3
 
 
 :input
@@ -312,7 +326,7 @@ log = 0
 	{
 		# amplitude modulation
 
-		kp = 1
+		kp = 0.5
 		ki = 0
 		kd = 0
 
@@ -345,7 +359,6 @@ floor(@yaw_fin) + floor(@heave_fin) + floor(@fan_fin)
 	:init
 	{
 		@motion_speed = 1
-		@yaw_speed = 1
 		@checksum = 0
 	}
 

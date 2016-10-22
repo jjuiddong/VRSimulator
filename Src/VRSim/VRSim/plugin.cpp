@@ -5,14 +5,18 @@
 
 bool sPluginInfo::Load(const string &dllFileName)
 {
+	// load dll file
 	lib = LoadLibraryA(dllFileName.c_str());
 	if (lib)
 	{
+		// bind function from dll file
 		GetGameName = (__GetGameName)GetProcAddress(lib, "GetGameName");
 		GetOutputGameName = (__GetOutputGameName)GetProcAddress(lib, "GetOutputGameName");
 		MotionInit = (__MotionInit)GetProcAddress(lib, "MotionInit");
 		MotionUpdateScript = (__MotionUpdateScript)GetProcAddress(lib, "MotionUpdateScript");
 		MotionUpdate = (__MotionUpdate)GetProcAddress(lib, "MotionUpdate");
+		MotionSetSymbol = (__MotionSetSymbol)GetProcAddress(lib, "MotionSetSymbol");
+		MotionSetOutputFormat = (__MotionSetOutputFormat)GetProcAddress(lib, "MotionSetOutputFormat");
 		MotionEnd = (__MotionEnd)GetProcAddress(lib, "MotionEnd");
 		MotionClear = (__MotionClear)GetProcAddress(lib, "MotionClear");
 

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #define DLL_FUNC __declspec(dllexport)
 
 extern "C"
@@ -29,7 +28,7 @@ extern "C"
 	// set symbol data
 	DLL_FUNC void MotionSetSymbol(const char *key, const float data);
 
-	
+
 	// set output format index
 	DLL_FUNC void MotionSetOutputFormat(const int formatIndex);
 
@@ -41,4 +40,3 @@ extern "C"
 	// remove motion data
 	DLL_FUNC void MotionClear();
 }
-

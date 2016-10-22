@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "Dirt3.h"
 
@@ -14,6 +13,7 @@ cDirt3::cDirt3()
 	, m_lapTimeUpCount(0)
 	, m_sameLapTimeCount(0)
 	, m_hWnd(NULL)
+	, m_startTime(0)
 {
 }
 
@@ -26,6 +26,7 @@ int cDirt3::Init(HWND hWnd)
 {
 	m_state = SERVOON;
 	m_hWnd = hWnd;
+	m_startTime = 0;
 	return motion::cController2::Get()->Init(hWnd, "Plugins/dirt3.txt");
 }
 
@@ -36,6 +37,9 @@ int cDirt3::UpdateMotionScript()
 }
 
 
+// return value 0: when servo off
+//					    1: play game
+//						2: game end
 int cDirt3::Update(const float deltaSeconds)
 {
 	int reVal = 1; // return 0, when servo off
@@ -61,6 +65,7 @@ int cDirt3::Update(const float deltaSeconds)
 
 	case START:
 	{
+		// send motion board by serial communication
 		cController2::Get()->SetOutputFormat(0, PRT_START);
 		SendSerialPort();
 		Sleep(500); // Delay
@@ -77,7 +82,19 @@ int cDirt3::Update(const float deltaSeconds)
 	case TOREADY:
 		cController2::Get()->SetOutputFormat(0, PRT_STOP);
 		SendSerialPort();
+		reVal = 2;
 		Delay(3, READY);
+		break;
+
+	case TIMEUP_STOP:
+		cController2::Get()->SetOutputFormat(0, PRT_STOP);
+		SendSerialPort();
+		reVal = 2;
+		Delay(3, TIMEUP_TOREADY);
+		break;
+
+	case TIMEUP_TOREADY:
+		CheckGameFinish();
 		break;
 
 	case STOP:
@@ -158,6 +175,9 @@ void cDirt3::CheckGameStart()
 			m_state = START;
 			m_lapTimeUpCount = 0;
 			m_sameLapTimeCount = 0;
+
+			if (0 == m_startTime)
+				m_startTime = timeGetTime();
 		}
 	}
 
@@ -169,11 +189,18 @@ void cDirt3::CheckGameStop()
 {
 	const float lapTime = script::g_symbols["@laptime"].fVal;
 	const float distance = script::g_symbols["@distance"].fVal;
-	if ((lapTime == m_lastLapTime) && (m_lastLapTime == 0) && (distance != 0))
-	{
-		// when game end, motion stop
-		m_state = TOREADY;
+	const float limitTime = script::g_symbols["@limit_time"].fVal;
+	const float playTime = ((timeGetTime() - m_startTime) / 60000.f);
+	const bool isTimeOver = playTime > limitTime;
 
+	if (isTimeOver
+		|| ((lapTime == m_lastLapTime) && (m_lastLapTime == 0) && (distance != 0)))
+	{
+		if(isTimeOver)
+			m_state = TIMEUP_STOP; // when time over, motion stop
+		else
+			m_state = TOREADY; // when game end, motion stop
+		
 		cController2::Get()->WriteGameResult("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
 
 		const string dbIP = cController2::Get()->m_script.m_program->cmd->values["db_ip"];
@@ -187,7 +214,7 @@ void cDirt3::CheckGameStop()
 				"Dirt3", "UserID", "track name", m_lapTime, 0, 0);
 		}
 	}
-	else if (lapTime == m_lastLapTime) // when show pause menu
+	else if (lapTime == m_lastLapTime) // when show pause menu, esc key or focus another window
 	{
 		++m_sameLapTimeCount;
 		if (m_sameLapTimeCount > 20)
@@ -200,8 +227,20 @@ void cDirt3::CheckGameStop()
 		m_sameLapTimeCount = 0;
 	}
 
+	script::g_symbols["@play_time"].type = script::FIELD_TYPE::T_FLOAT;
+	script::g_symbols["@play_time"].fVal = playTime;
+
 	m_lastLapTime = lapTime;
 	if (0 != lapTime)
 		m_lapTime = lapTime;
 }
 
+
+void cDirt3::CheckGameFinish()
+{
+	if (script::g_symbols["@laptime"].fVal == 0.f)
+	{
+		m_state = READY;
+		m_startTime = 0;
+	}
+}

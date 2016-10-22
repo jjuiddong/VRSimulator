@@ -52,6 +52,8 @@
 #	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
 #	- @motion_speed
 #	- @yaw_speed
+#	- @amplitude
+#	- @amplitude0
 #
 
 

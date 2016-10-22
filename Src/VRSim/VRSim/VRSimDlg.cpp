@@ -3,6 +3,8 @@
 #include "VRSim.h"
 #include "VRSimDlg.h"
 #include "afxdialogex.h"
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 
 #ifdef _DEBUG
@@ -19,6 +21,8 @@ CVRSimDlg::CVRSimDlg(CWnd* pParent /*=NULL*/)
 	, m_editSpeed(0)
 	, m_selectGame(-1)
 	, m_strGameTitle(_T(""))
+	, m_radioAxisType(0)
+	, m_editLimitTime(_T("5.0"))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -31,10 +35,13 @@ void CVRSimDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER_SPEED, m_sliderSpeed);
 	DDX_Text(pDX, IDC_EDIT_SPEED, m_editSpeed);
 	DDX_Text(pDX, IDC_STATIC_TITLE, m_strGameTitle);
+	DDX_Control(pDX, IDC_STATIC_PLAY_COUNT, m_staticPlayGames);
+	DDX_Control(pDX, IDC_STATIC_TOTAL_PLAY_COUNT, m_staticTotalGames);
+	DDX_Radio(pDX, IDC_RADIO_AXIS3, m_radioAxisType);
+	DDX_Text(pDX, IDC_EDIT_LIMIT_MINUTE, m_editLimitTime);
 }
 
 BEGIN_MESSAGE_MAP(CVRSimDlg, CDialogEx)
-	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CVRSimDlg::OnBnClickedOk)
@@ -46,6 +53,10 @@ BEGIN_MESSAGE_MAP(CVRSimDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SERVOSTOP, &CVRSimDlg::OnBnClickedButtonServostop)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_SPEED, &CVRSimDlg::OnNMCustomdrawSliderSpeed)
 	ON_BN_CLICKED(IDC_BUTTON_UPDATE, &CVRSimDlg::OnBnClickedButtonUpdate)
+	ON_BN_CLICKED(IDC_RADIO_AXIS3, &CVRSimDlg::OnBnClickedRadioAxis3)
+	ON_BN_CLICKED(IDC_RADIO_AXIS4, &CVRSimDlg::OnBnClickedRadioAxis4)
+	ON_WM_CLOSE()
+	ON_EN_CHANGE(IDC_EDIT_LIMIT_MINUTE, &CVRSimDlg::OnEnChangeEditLimitMinute)
 END_MESSAGE_MAP()
 
 
@@ -71,6 +82,7 @@ BOOL CVRSimDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	//UI ----------------------------------------------------------------
+	// Hide Setting UI
 	CRect btnWr;
 	m_buttonDetails.GetWindowRect(btnWr);
 	CRect wr;
@@ -84,6 +96,11 @@ BOOL CVRSimDlg::OnInitDialog()
 	dbg::RemoveLog();
 	dbg::RemoveErrLog();
 
+	// load default plugin for ServoOn, ServoOff, Start, Stop
+	sPluginInfo defaultPlugin;
+	if (defaultPlugin.Load("./Plugins/DefaultPlugin.dll"))
+		m_plugins.push_back(defaultPlugin);
+
 	list<string> exts;
 	exts.push_back("dll");
 	list<string> files;
@@ -91,6 +108,9 @@ BOOL CVRSimDlg::OnInitDialog()
 
 	for each (auto file in files)
 	{
+		if (file.find("DefaultPlugin.dll") != string::npos)
+			continue; // ignore default plugin, already load
+
 		sPluginInfo plugin;
 		if (plugin.Load(file))
 		{
@@ -103,13 +123,12 @@ BOOL CVRSimDlg::OnInitDialog()
 		}
 	}
 
+	UpdatePlayInfo();
+	SendServoMessage(SERVO_ON);
+
 	return TRUE;
 }
 
-void CVRSimDlg::OnSysCommand(UINT nID, LPARAM lParam)
-{
-	CDialogEx::OnSysCommand(nID, lParam);
-}
 
 void CVRSimDlg::OnPaint()
 {
@@ -154,6 +173,7 @@ void CVRSimDlg::OnBnClickedCancel()
 }
 
 
+// Main Loop Function
 bool CVRSimDlg::Run()
 {
 	MSG msg;
@@ -216,15 +236,27 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 	{
 		if (IsLiveGame(m_plugins[i].gameName))
 		{
+			// clear current plugin
+			if (m_selectGame >= 0)
+				m_plugins[m_selectGame].MotionClear();
+
 			m_selectGame = i;
 			m_state = MOTION_LOOP;
 			m_strGameTitle = str2wstr(m_plugins[i].outputGameName).c_str();
 
-			// 게임 발견.  초기화
+			// detect game, initialize motion dll
 			if (m_plugins[i].MotionInit((int)m_hWnd) <= 0)
 			{
 				::AfxMessageBox(L"Error Motion Init \n");
 			}
+
+			// Update Motion Script Global Variable
+			UpdateData();
+			m_plugins[i].MotionSetSymbol("@motion_speed", m_editSpeed);
+			m_plugins[i].MotionSetSymbol("@yaw_speed", (float)m_radioAxisType);
+			const float limitTime = (float)_ttof((LPCTSTR)m_editLimitTime);
+			m_plugins[i].MotionSetSymbol("@limit_time", limitTime);
+			//
 
 			SetBackgroundColor(g_blueColor);
 			UpdateData(FALSE);
@@ -233,7 +265,7 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 	}
 }
 
-
+// every time, call this function
 void CVRSimDlg::MotionLoop(const float deltaSeconds)
 {
 	if (m_plugins.empty() || (m_selectGame < 0))
@@ -246,14 +278,18 @@ void CVRSimDlg::MotionLoop(const float deltaSeconds)
 		goto not_detect_game;
 	}
 
-	m_plugins[m_selectGame].MotionUpdate(deltaSeconds);
+	const int result = m_plugins[m_selectGame].MotionUpdate(deltaSeconds);
+	if (result == 2) // game end, update game.csv
+		UpdatePlayInfo();
+
 	return;
 
 
 not_detect_game:
 	m_state = MOTION_END_LOOP;
 	m_strGameTitle = "";
-	m_plugins[m_selectGame].MotionEnd();
+	if (m_selectGame >= 0)
+		m_plugins[m_selectGame].MotionEnd();
 	SetBackgroundColor(g_grayColor);
 	UpdateData(FALSE);
 }
@@ -263,12 +299,18 @@ void CVRSimDlg::MotionEndLoop(const float deltaSeconds)
 {
 	if (m_plugins.empty())
 		return;
+	if (m_selectGame < 0)
+	{
+		m_state = DETECT_GAME;
+		return;
+	}
 
 	const int result = m_plugins[m_selectGame].MotionUpdate(deltaSeconds);
 	if (result == 0)
 	{ // motion device finish
 		m_state = DETECT_GAME;
 		m_plugins[m_selectGame].MotionClear();
+		m_selectGame = -1;
 		UpdateData(FALSE);
 	}
 }
@@ -309,25 +351,26 @@ void CVRSimDlg::OnBnClickedButtonDetails()
 
 void CVRSimDlg::OnBnClickedButtonServoon()
 {
-	SendServoMessage(1);
+	SendServoMessage(SERVO_ON);
 }
 
 
 void CVRSimDlg::OnBnClickedButtonServooff()
 {
-	SendServoMessage(2);
+	SendServoMessage(SERVO_OFF);
 }
 
 
 void CVRSimDlg::OnBnClickedButtonServostart()
 {
-	SendServoMessage(3);
+	SendServoMessage(SERVO_START);
 }
 
 
 void CVRSimDlg::OnBnClickedButtonServostop()
 {
-	SendServoMessage(4);
+	SendServoMessage(SERVO_STOP);
+	SendServoMessage(SERVO_ON);
 }
 
 
@@ -337,10 +380,12 @@ void CVRSimDlg::ReadConfigFile()
 {
 	const float motionSpeed = uiutil::GetProfileFloat("config", "motion_speed", 1.f, g_ConfigFileName);
 	const float yawSpeed = uiutil::GetProfileFloat("config", "yaw_speed", 0.f, g_ConfigFileName);
+	const float limitTime = uiutil::GetProfileFloat("config", "limit_time", 5.f, g_ConfigFileName);
 
-// 	m_AxisRadio = (yawSpeed > 0) ? 1 : 0;
+ 	m_radioAxisType = (yawSpeed > 0) ? 1 : 0;
  	m_editSpeed = motionSpeed;
  	m_sliderSpeed.SetPos((int)(motionSpeed * 1000.f));
+	m_editLimitTime.Format(L"%.1f", limitTime);
 	UpdateData(FALSE);
 }
 
@@ -356,25 +401,29 @@ void CVRSimDlg::WriteConfigFile()
 		return;
 
  	const float pos = (float)m_sliderSpeed.GetPos() / 1000.f;
- 
+	const float limitTime = (float)_ttof((LPCTSTR)m_editLimitTime);
+
  	ofs << "[config]" << endl;
-// 	ofs << "yaw_speed = " << m_AxisRadio << endl;
+ 	ofs << "yaw_speed = " << m_radioAxisType << endl;
  	ofs << "motion_speed = " << pos << endl;
+	ofs << "limit_time = " << limitTime << endl;
 }
 
 
 void CVRSimDlg::SendServoMessage(const int cmd)
 {
-// 	if (motion::cOutput *output = motion::cController2::Get()->GetOutput(0))
-// 	{
-// 		output->Start();
-// 		output->SetFormat(cmd);
-// 		for (int i = 0; i < 5; ++i)
-// 		{
-// 			output->SendImmediate();
-// 			Sleep(100);
-// 		}
-// 	}
+	if (m_selectGame >= 1)
+		m_plugins[m_selectGame].MotionClear();
+	if (m_selectGame != 0)
+		m_plugins[0].MotionInit((int)m_hWnd); // initialize default plugin dll
+
+	m_selectGame = 0; // set default plugin dll 
+	m_plugins[0].MotionSetOutputFormat(cmd);
+	for (int i = 0; i < 10; ++i)
+	{
+		m_plugins[0].MotionUpdate(50);
+		Sleep(50);
+	}
 }
 
 
@@ -384,8 +433,10 @@ void CVRSimDlg::OnNMCustomdrawSliderSpeed(NMHDR *pNMHDR, LRESULT *pResult)
 	const float pos = (float)m_sliderSpeed.GetPos() / 1000.f;
 	m_editSpeed = pos;
 	UpdateData(FALSE);
-// 	script::g_symbols["@motion_speed"].type = script::FIELD_TYPE::T_FLOAT;
-// 	script::g_symbols["@motion_speed"].fVal = pos;
+
+	if (m_selectGame >= 0)
+		m_plugins[m_selectGame].MotionSetSymbol("@motion_speed", pos);
+
 	*pResult = 0;
 }
 
@@ -393,5 +444,89 @@ void CVRSimDlg::OnNMCustomdrawSliderSpeed(NMHDR *pNMHDR, LRESULT *pResult)
 void CVRSimDlg::OnBnClickedButtonUpdate()
 {
 	if (m_selectGame >= 0)
+	{
+		UpdateData();
+
 		m_plugins[m_selectGame].MotionUpdateScript();
+		m_plugins[m_selectGame].MotionSetSymbol("@motion_speed", m_editSpeed);
+		m_plugins[m_selectGame].MotionSetSymbol("@yaw_speed", (float)m_radioAxisType);
+		const float limitTime = (float)_ttof((LPCTSTR)m_editLimitTime);
+		m_plugins[m_selectGame].MotionSetSymbol("@limit_time", limitTime);
+	}
+}
+
+
+// update today play game count
+// parse game.csv to find today play games
+// and total play game
+void CVRSimDlg::UpdatePlayInfo()
+{
+	using namespace std;
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	ifstream ifs("game.csv");
+	if (!ifs.is_open())
+		return;
+
+	string today;
+	{
+		time_t time = std::time(nullptr);
+		std::tm tm;
+		localtime_s(&tm, &time);
+		stringstream ss;
+		ss << std::put_time(&tm, "%Y-%m-%d");
+		today = ss.str();
+	}
+
+	int todayPlayGameCount = 0;
+	int totalGames = 0;
+	string line;
+	while (getline(ifs, line))
+	{
+		stringstream ss(line);
+		string dateStr;
+		ss >> dateStr;
+
+		++totalGames;
+		if (dateStr == today)
+			++todayPlayGameCount;
+	}
+
+	m_staticPlayGames.SetWindowText(common::formatw("Game Count : %d", todayPlayGameCount).c_str());
+	m_staticTotalGames.SetWindowText(common::formatw("Total Game Count : %d", totalGames).c_str());
+}
+
+
+void CVRSimDlg::OnBnClickedRadioAxis3()
+{
+	UpdateData();
+
+	if (m_selectGame>=0)
+		m_plugins[m_selectGame].MotionSetSymbol("@yaw_speed", (float)m_radioAxisType);
+}
+
+
+void CVRSimDlg::OnBnClickedRadioAxis4()
+{
+	UpdateData();
+
+	if (m_selectGame >= 0)
+		m_plugins[m_selectGame].MotionSetSymbol("@yaw_speed", (float)m_radioAxisType);
+}
+
+
+void CVRSimDlg::OnClose()
+{
+	WriteConfigFile();
+	CDialogEx::OnClose();
+}
+
+
+void CVRSimDlg::OnEnChangeEditLimitMinute()
+{
+	UpdateData();
+	const float limitTime = (float)_ttof((LPCTSTR)m_editLimitTime);
+	if (m_selectGame >= 0)
+		m_plugins[m_selectGame].MotionSetSymbol("@limit_time", limitTime);
 }
