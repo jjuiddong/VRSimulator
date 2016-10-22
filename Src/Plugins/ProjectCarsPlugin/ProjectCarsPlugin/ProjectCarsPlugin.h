@@ -26,6 +26,14 @@ extern "C"
 	DLL_FUNC int MotionUpdate(const float deltaSeconds);
 
 
+	// set symbol data
+	DLL_FUNC void MotionSetSymbol(const char *key, const float data);
+
+
+	// set output format index
+	DLL_FUNC void MotionSetOutputFormat(const int formatIndex);
+
+
 	// Finish Motion
 	DLL_FUNC void MotionEnd();
 

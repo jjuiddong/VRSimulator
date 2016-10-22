@@ -63,16 +63,12 @@ log = 0
 
 :input
 {
-	device = shm
-	shmname = $pcars$
-	startindex = 1
-	memsize = 7316
+	device = udp
+	bindport= 10001
 
 	:protocol
 	{
-		8, int # $1 version + build version
-		4, int # $2 game state
-		6892, int # $3 0=Exit, 1=FrontEnd, 2=InGamePlaying, 3=InGamePause
+		4, int # $1 game state 0=Exit, 1=FrontEnd, 2=InGamePlaying, 3=InGamePause
 		4, float # $2 orientation x
 		4, float # $3 orientation y
 		4, float # $4 orientation z
@@ -104,19 +100,17 @@ log = 0
 
 		@laptime = 0
 		@distance = 0
-		@gamestate = $2
+		@gamestate = $1
 
-		@roll = -$7
-		@pitch = -$5
-		@yaw = $6
-		@heave = 0
+		@roll = $4
+		@pitch = $2
+		@yaw = $3
+		@heave = $6
 	}
 
 
 	:modulation
 	{
-		# udp input
-
 		yaw_kp = 0.2
 		yaw_ki = 0.0
 		yaw_kd = -0.2
@@ -178,7 +172,7 @@ log = 0
 
 		yaw_c1 = 0
 		yaw_c2 = 40000
-		yaw_c3 = 10000
+		yaw_c3 = 0
 
 		pitch_c1 = 0
 		pitch_c2 = 50000
@@ -195,6 +189,71 @@ log = 0
 
 	}
 }
+
+
+:module
+{
+	inputvalue = $16
+	outputvalue = $surge
+
+	:modulation
+	{
+		# surge speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 100000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = -2000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+:module
+{
+	inputvalue = $14
+	outputvalue = $sway
+
+	:modulation
+	{
+		# surge speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 100000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = -2000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
 
 
 :mixer

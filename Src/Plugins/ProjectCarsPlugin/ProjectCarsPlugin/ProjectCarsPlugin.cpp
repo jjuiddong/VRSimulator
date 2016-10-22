@@ -45,3 +45,16 @@ void MotionClear()
 	g_projectCars.Clear();
 	motion::cController2::Release();
 }
+
+// set symbol data
+void MotionSetSymbol(const char *key, const float data)
+{
+	script::g_symbols[key].type = script::FIELD_TYPE::T_FLOAT;
+	script::g_symbols[key].fVal = data;
+}
+
+// set output format index
+void MotionSetOutputFormat(const int formatIndex)
+{
+	motion::cController2::Get()->SetOutputFormat(0, formatIndex);
+}
