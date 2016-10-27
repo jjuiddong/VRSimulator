@@ -14,6 +14,6 @@
 #include <windows.h>
 
 
-#include "../../../../Common/Motion/motion.h"
+#include "../../../../../Common/Motion/motion.h"
 #include "StrikerXPlugin.h"
 

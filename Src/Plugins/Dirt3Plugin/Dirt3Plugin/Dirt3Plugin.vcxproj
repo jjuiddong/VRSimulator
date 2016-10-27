@@ -179,9 +179,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Common\CamCommon\CamCommon.vcxproj">
-      <Project>{5fb1736a-e9fb-448c-8a8a-4c30a90cd87c}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Common\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>
@@ -190,9 +187,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Common\Network\Network.vcxproj">
       <Project>{a202aa06-f0ee-4b05-86de-da63b9f146d4}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\Common\Tess\Tess.vcxproj">
-      <Project>{47690dcf-2b63-432d-ad3a-a2d2ff775b2c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

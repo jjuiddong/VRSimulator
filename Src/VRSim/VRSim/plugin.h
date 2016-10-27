@@ -1,6 +1,6 @@
 //
 // 2016-07-10, jjuiddong
-// plugin fuction
+// plugin function
 //
 #pragma once
 
@@ -8,16 +8,17 @@
 // Plugin DLL Function
 extern "C"
 {
-	typedef void(__cdecl *__GetGameName) (char *gameName);
-	typedef void(__cdecl *__GetOutputGameName) (char *gameName);
-	typedef int(__cdecl *__MotionInit) (int hwnd);
+	typedef void(__cdecl *__GetGameName) (wchar_t *gameName);
+	typedef void(__cdecl *__GetOutputGameName) (wchar_t *gameName);
+	typedef void(__cdecl *__GetGameLogoFilePath) (wchar_t *gameLogoPath);
+	typedef int(__cdecl *__MotionInit) (int hwnd, int gameIdx);
 	typedef int(__cdecl *__MotionUpdateScript) ();
 	typedef int (__cdecl *__MotionUpdate) (const float deltaSeconds);
 	typedef void (__cdecl *__MotionSetSymbol) (char *symbol, const float data);
 	typedef void(__cdecl *__MotionSetOutputFormat) (const int formatIndex);
+	typedef float(__cdecl *__MotionGetSymbolFloat)(char*);
 	typedef void(__cdecl *__MotionEnd) ();
 	typedef void(__cdecl *__MotionClear) ();
-	typedef float(__cdecl *__MotionGetSymbolFloat)(char*);
 }
 
 
@@ -26,18 +27,20 @@ struct sPluginInfo
 {
 	__GetGameName GetGameName;
 	__GetOutputGameName GetOutputGameName;
+	__GetGameLogoFilePath GetGameLogoFilePath;
 	__MotionInit MotionInit;
 	__MotionUpdateScript MotionUpdateScript;
 	__MotionUpdate MotionUpdate;
 	__MotionSetSymbol MotionSetSymbol;
+	__MotionGetSymbolFloat MotionGetSymbolFloat; // not used
 	__MotionSetOutputFormat MotionSetOutputFormat;
 	__MotionEnd MotionEnd;
 	__MotionClear MotionClear;
-	__MotionGetSymbolFloat MotionGetSymbolFloat;
 
 	HMODULE lib;
-	char gameName[64];
-	char outputGameName[64];
+	vector<wstring> gameNames;
+	vector<wstring> outputGameNames;
+	vector<wstring> gameLogoFiles;
 
 	bool Load(const string &dllFileName);
 };

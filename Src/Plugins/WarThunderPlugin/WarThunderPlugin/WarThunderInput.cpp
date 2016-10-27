@@ -377,19 +377,6 @@ unsigned WINAPI WarThunderThreadFunc(void* arg)
 
 				case cWarThunderInput::INDICATORS:
 				{
-// 					string roll = props.get<string>("aviahorizon_roll", "");
-// 					string pitch = props.get<string>("aviahorizon_pitch", "");
-// 					string bank = props.get<string>("bank", "");
-// 					string compass = props.get<string>("compass", "");
-// 					string compass1 = props.get<string>("compass1", "");
-// 
-// 					wtInput->m_critcalSection.Lock();
-// 					wtInput->m_Roll = (float)atof(roll.c_str());
-// 					wtInput->m_Pitch = (float)atof(pitch.c_str());
-// 					wtInput->m_Yaw = ANGLE2RAD((float)atof(compass.c_str()));
-// 					wtInput->m_Bank = (float)atof(bank.c_str());
-// 					wtInput->m_critcalSection.Unlock();
-
  					wtInput->m_critcalSection.Lock();
 					wtInput->m_indicators.valid = (float)(props.get<string>("valid", "false") == "true");
 					wtInput->m_indicators.speed = (float)atof(props.get<string>("speed", "").c_str());

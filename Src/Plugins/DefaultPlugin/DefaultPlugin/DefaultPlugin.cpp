@@ -5,17 +5,26 @@
 
 using namespace motion;
 
-void GetGameName(char *gameName)
+void GetGameName(wchar_t *gameName)
 {
-	strcpy(gameName, "Default Plugin, does not match any window name");
-}
-
-void GetOutputGameName(char *gameTitleName)
-{
+	wcscpy(gameName, L";Default Plugin, does not match any window name");
 }
 
 
-int MotionInit(int hWnd)
+void GetOutputGameName(wchar_t *gameTitleName)
+{
+	wcscpy(gameTitleName, L"; ");
+}
+
+
+// Game Logo FilePath
+void GetGameLogoFilePath(wchar_t *gameLogFilePath)
+{
+	wcscpy(gameLogFilePath, L"; ");
+}
+
+
+int MotionInit(int hWnd, int gameIdx)
 {
 	int result = motion::cController2::Get()->Init((HWND)hWnd, "Plugins/default.txt")? 1 : 0;
 	motion::cController2::Get()->Start();

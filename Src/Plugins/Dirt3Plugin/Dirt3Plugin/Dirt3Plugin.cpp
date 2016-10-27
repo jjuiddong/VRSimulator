@@ -7,21 +7,28 @@
 cDirt3 g_dirt3;
 
 
-void GetGameName(char *gameName)
+void GetGameName(wchar_t *gameName)
 {
-	strcpy(gameName, "DiRT 3");
+	wcscpy(gameName, L";DiRT 3;GRID Autosport;DiRT Showdown");
 }
 
 
-void GetOutputGameName(char *gameTitleName)
+void GetOutputGameName(wchar_t *gameTitleName)
 {
-	strcpy(gameTitleName, "DiRT 3");
+	wcscpy(gameTitleName, L";DiRT 3;GRID Autosport;DiRT Showdown");
 }
 
 
-int MotionInit(int hWnd)
+// Game Logo FilePath
+void GetGameLogoFilePath(wchar_t *gameLogFilePath)
 {
-	return g_dirt3.Init((HWND)hWnd);
+	wcscpy(gameLogFilePath, L";./Plugins/Dirt3.jpg;./Plugins/Grid.jpg;./Plugins/Dirt Showdown.jpg");
+}
+
+
+int MotionInit(int hWnd, int gameIdx)
+{
+	return g_dirt3.Init((HWND)hWnd, gameIdx);
 }
 
 int MotionUpdateScript()

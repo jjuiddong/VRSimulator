@@ -232,7 +232,8 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 {
 	for (u_int i=0; i < m_plugins.size(); ++i)
 	{
-		if (IsLiveGame(m_plugins[i].gameName))
+		const int gameIdx = IsLiveGame(m_plugins[i]);
+		if (gameIdx  >= 0)
 		{
 			// clear current plugin
 			if (m_selectGame >= 0)
@@ -240,10 +241,10 @@ void CVRSimDlg::DetectGameLoop(const float deltaSeconds)
 
 			m_selectGame = i;
 			m_state = MOTION_LOOP;
-			m_strGameTitle = str2wstr(m_plugins[i].outputGameName).c_str();
+			m_strGameTitle = m_plugins[i].outputGameNames[gameIdx].c_str();
 
 			// detect game, initialize motion dll
-			if (m_plugins[i].MotionInit((int)m_hWnd) <= 0)
+			if (m_plugins[i].MotionInit((int)m_hWnd, gameIdx) <= 0)
 			{
 				::AfxMessageBox(L"Error Motion Init \n");
 			}
@@ -271,7 +272,7 @@ void CVRSimDlg::MotionLoop(const float deltaSeconds)
 		goto not_detect_game;
 	}
 
-	if (!IsLiveGame(m_plugins[m_selectGame].gameName))
+	if (IsLiveGame(m_plugins[m_selectGame]) == -1)
 	{
 		goto not_detect_game;
 	}
@@ -285,7 +286,7 @@ void CVRSimDlg::MotionLoop(const float deltaSeconds)
 
 not_detect_game:
 	m_state = MOTION_END_LOOP;
-	m_strGameTitle = "";
+	m_strGameTitle = L"";
 	if (m_selectGame >= 0)
 		m_plugins[m_selectGame].MotionEnd();
 	SetBackgroundColor(g_grayColor);
@@ -315,10 +316,16 @@ void CVRSimDlg::MotionEndLoop(const float deltaSeconds)
 
 
 // check running game
-bool CVRSimDlg::IsLiveGame(const string &gameName)
+// return value = -1 : not find game
+//							0 >= : find game, return game  index 
+int CVRSimDlg::IsLiveGame(const sPluginInfo &plugin)
 {
-	const HWND hwnd = ::FindWindowA(NULL, gameName.c_str());
-	return hwnd ? true : false;
+	for (u_int i=0; i < plugin.gameNames.size(); ++i)
+	{
+		if (::FindWindow(NULL, plugin.gameNames[i].c_str()))
+			return i;
+	}
+	return -1;
 }
 
 
@@ -413,7 +420,7 @@ void CVRSimDlg::SendServoMessage(const int cmd)
 	if (m_selectGame >= 1)
 		m_plugins[m_selectGame].MotionClear();
 	if (m_selectGame != 0)
-		m_plugins[0].MotionInit((int)m_hWnd); // initialize default plugin dll
+		m_plugins[0].MotionInit((int)m_hWnd, 0); // initialize default plugin dll
 
 	m_selectGame = 0; // set default plugin dll 
 	m_plugins[0].MotionSetOutputFormat(cmd);
@@ -517,6 +524,10 @@ void CVRSimDlg::OnBnClickedRadioAxis4()
 void CVRSimDlg::OnClose()
 {
 	WriteConfigFile();
+
+	SendServoMessage(SERVO_STOP);
+	SendServoMessage(SERVO_OFF);
+
 	CDialogEx::OnClose();
 }
 

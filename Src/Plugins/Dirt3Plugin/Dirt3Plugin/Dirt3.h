@@ -35,7 +35,7 @@ public:
 	cDirt3();
 	virtual ~cDirt3();
 
-	int Init(HWND hWnd);
+	int Init(HWND hWnd, int gameIdx);
 	int UpdateMotionScript();
 	int Update(const float deltaSeconds);
 	void End();
@@ -49,9 +49,11 @@ protected:
 	void CheckGameStop();
 	void CheckGameFinish();
 
+
 protected:
 	STATE m_state;
 	HWND m_hWnd;
+	int m_gameIdx;
 
 	// delay
 	STATE m_nextState;

@@ -7,19 +7,26 @@
 cProjectCars g_projectCars;
 
 
-void GetGameName(char *gameName)
+void GetGameName(wchar_t *gameName)
 {
-	strcpy(gameName, "Project CARS¢â");
+	wcscpy(gameName, L";Project CARS¢â");
 }
 
 
-void GetOutputGameName(char *gameTitleName)
+void GetOutputGameName(wchar_t *gameTitleName)
 {
-	strcpy(gameTitleName, "Project CARS¢â");
+	wcscpy(gameTitleName, L";Project CARS¢â");
 }
 
 
-int MotionInit(int hWnd)
+// Game Logo FilePath
+void GetGameLogoFilePath(wchar_t *gameLogFilePath)
+{
+	wcscpy(gameLogFilePath, L";./Plugins/ProjectCars.jpg");
+}
+
+
+int MotionInit(int hWnd, int gameIdx)
 {
 	return g_projectCars.Init((HWND)hWnd);
 }

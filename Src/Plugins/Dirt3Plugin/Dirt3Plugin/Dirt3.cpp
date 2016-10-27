@@ -14,6 +14,7 @@ cDirt3::cDirt3()
 	, m_sameLapTimeCount(0)
 	, m_hWnd(NULL)
 	, m_startTime(0)
+	, m_gameIdx(0)
 {
 }
 
@@ -22,10 +23,11 @@ cDirt3::~cDirt3()
 }
 
 
-int cDirt3::Init(HWND hWnd)
+int cDirt3::Init(HWND hWnd, int gameIdx)
 {
 	m_state = SERVOON;
 	m_hWnd = hWnd;
+	m_gameIdx = gameIdx;
 	m_startTime = 0;
 	return motion::cController2::Get()->Init(hWnd, "Plugins/dirt3.txt");
 }
@@ -104,9 +106,9 @@ int cDirt3::Update(const float deltaSeconds)
 		break;
 
 	case SERVOOFF:
-		cController2::Get()->SetOutputFormat(0, PRT_SERVOOFF);
-		SendSerialPort();
-		Sleep(1000);
+//		cController2::Get()->SetOutputFormat(0, PRT_SERVOOFF);
+// 		SendSerialPort();
+// 		Sleep(1000);
 		cController2::Get()->Stop();
 		Delay(0, OFF);
 		break;
@@ -196,12 +198,15 @@ void cDirt3::CheckGameStop()
 	if (isTimeOver
 		|| ((lapTime == m_lastLapTime) && (m_lastLapTime == 0) && (distance != 0)))
 	{
-		if(isTimeOver)
+		if (isTimeOver)
 			m_state = TIMEUP_STOP; // when time over, motion stop
 		else
 			m_state = TOREADY; // when game end, motion stop
-		
-		cController2::Get()->WriteGameResult("Dirt3", "UserID", "track name", m_lapTime, 0, 0);
+
+		m_startTime = 0; // initialize when game end
+
+		string gameName[] = { "Dirt3", "GRID Autosport",  "DiRT Showdown" };
+		cController2::Get()->WriteGameResult(gameName[m_gameIdx], "UserID", "track name", m_lapTime, 0, 0);
 
 		const string dbIP = cController2::Get()->m_script.m_program->cmd->values["db_ip"];
 		if (!dbIP.empty())

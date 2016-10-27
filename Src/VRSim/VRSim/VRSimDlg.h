@@ -21,7 +21,7 @@ protected:
 	void DetectGameLoop(const float deltaSeconds);
 	void MotionLoop(const float deltaSeconds);
 	void MotionEndLoop(const float deltaSeconds);
-	bool IsLiveGame(const string &gameName);
+	int IsLiveGame(const sPluginInfo &plugin);
 	void UpdatePlayInfo();
 
 

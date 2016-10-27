@@ -6,16 +6,20 @@
 extern "C"
 {
 	// Game Name To Find Running Game
-	DLL_FUNC void GetGameName(char *gameName);
+	DLL_FUNC void GetGameName(wchar_t *gameName);
 
 
 	// To Display VRSim Window
-	DLL_FUNC void GetOutputGameName(char *gameTitleName);
+	DLL_FUNC void GetOutputGameName(wchar_t *gameTitleName);
+
+
+	// Game Logo FilePath
+	DLL_FUNC void GetGameLogoFilePath(wchar_t *gameLogFilePath);
 
 
 	// Read Motion Script and then Start Motion
 	// return 0: error, 1:success
-	DLL_FUNC int MotionInit(int hWnd);
+	DLL_FUNC int MotionInit(int hWnd, int gameIdx);
 
 
 	// reload Motion Script

@@ -5,17 +5,21 @@
 
 extern "C"
 {
-	// 게임 이름
-	DLL_FUNC void GetGameName(char *gameName);
+	// Game Name To Find Running Game
+	DLL_FUNC void GetGameName(wchar_t *gameName);
 
 
-	// 매니저에 출력할 게임 타이틀 이름
-	DLL_FUNC void GetOutputGameName(char *gameTitleName);
+	// To Display VRSim Window
+	DLL_FUNC void GetOutputGameName(wchar_t *gameTitleName);
 
 
-	// 모션 스크립트 파일을 읽는 함수
-	// 성공하면 1을 리턴하고, 그렇지 않으면 0을 리턴한다.
-	DLL_FUNC int MotionInit(int hWnd);
+	// Game Logo FilePath
+	DLL_FUNC void GetGameLogoFilePath(wchar_t *gameLogFilePath);
+
+
+	// Read Motion Script and then Start Motion
+	// return 0: error, 1:success
+	DLL_FUNC int MotionInit(int hWnd, int gameIdx);
 
 
 	// 모션 스크립트 파일을 다시 읽는다.
@@ -25,6 +29,13 @@ extern "C"
 	// 매 루프때마다 호출해야 하는 함수
 	// deltaSeconds : 1초가 지나면 1
 	DLL_FUNC int MotionUpdate(const float deltaSeconds);
+
+	// set symbol data
+	DLL_FUNC void MotionSetSymbol(const char *key, const float data);
+
+
+	// set output format index
+	DLL_FUNC void MotionSetOutputFormat(const int formatIndex);
 
 
 	// 모션 종료

@@ -7,19 +7,26 @@
 cWarThunder g_warThunder;
 
 
-void GetGameName(char *gameName)
+void GetGameName(wchar_t *gameName)
 {
-	strcpy(gameName, "War Thunder - In battle");
+	wcscpy(gameName, L";War Thunder;War Thunder - In battle");
 }
 
 
-void GetOutputGameName(char *gameTitleName)
+void GetOutputGameName(wchar_t *gameTitleName)
 {
-	strcpy(gameTitleName, "War Thunder");
+	wcscpy(gameTitleName, L";War Thunder;War Thunder");
 }
 
 
-int MotionInit(int hWnd)
+// Game Logo FilePath
+void GetGameLogoFilePath(wchar_t *gameLogFilePath)
+{
+	wcscpy(gameLogFilePath, L";./Plugins/WarThunder.jpg;./Plugins/WarThunder.jpg");
+}
+
+
+int MotionInit(int hWnd, int gameIdx)
 {
 	return g_warThunder.Init((HWND)hWnd);
 }
@@ -44,4 +51,18 @@ void MotionClear()
 {
 	g_warThunder.Clear();
 	motion::cController2::Release();
+}
+
+
+// set symbol data
+void MotionSetSymbol(const char *key, const float data)
+{
+	script::g_symbols[key].type = script::FIELD_TYPE::T_FLOAT;
+	script::g_symbols[key].fVal = data;
+}
+
+// set output format index
+void MotionSetOutputFormat(const int formatIndex)
+{
+	motion::cController2::Get()->SetOutputFormat(0, formatIndex);
 }
