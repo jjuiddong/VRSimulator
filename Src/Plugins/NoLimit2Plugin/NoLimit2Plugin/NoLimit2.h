@@ -14,8 +14,6 @@ public:
 		START,
 		PLAY,
 		TOREADY,
-		TIMEUP_STOP,
-		TIMEUP_TOREADY,
 		STOP,
 		SERVOOFF,
 		DELAY,
@@ -44,7 +42,7 @@ protected:
 	void SendSerialPort();
 	void CheckGameStart();
 	void CheckGameStop();
-	void CheckGameFinish();
+	bool KeyDown(const int vkey);
 
 
 protected:
@@ -58,9 +56,8 @@ protected:
 
 	// lapTime
 	int m_startTime;
-	float m_lastLapTime;
-	float m_lapTime;
-	int m_lapTimeUpCount;
-	int m_sameLapTimeCount;
+	float m_lastSpeed;
+	int m_speedUpCount;
+	int m_speedZeroCount;
 };
 

@@ -9,7 +9,7 @@ cNoLimits2 g_noLimits2;
 
 void GetGameName(wchar_t *gameName)
 {
-	wcscpy(gameName, L";NoLimits 2");
+	wcscpy(gameName, L";nolimits2app.exe");
 }
 
 
@@ -22,7 +22,7 @@ void GetOutputGameName(wchar_t *gameTitleName)
 // Game Logo FilePath
 void GetGameLogoFilePath(wchar_t *gameLogFilePath)
 {
-	wcscpy(gameLogFilePath, L";./Plugins/NoLimits 2.jpg");
+	wcscpy(gameLogFilePath, L";./Plugins/NoLimits2.jpg");
 }
 
 

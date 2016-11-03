@@ -293,14 +293,16 @@ unsigned WINAPI WarThunderThreadFunc(void* arg)
 	client.m_isLog = false;
 
 	cWarThunderInput::MOTION_DATA readType = cWarThunderInput::STATE;
-	string cmd[] = {
+	string cmd[] = { // http protocol command
 		"GET /state HTTP/1.1\r\n \r\nConnection: close\r\n\r\n",
 		"GET /indicators HTTP/1.1\r\n \r\nConnection: close\r\n\r\n"
 	};
 
 	while (wtInput->m_loop)
 	{
-		if (!client.Init("localhost", 8111, 512, 10, 30, true))
+		// http protocol
+		// connect -> close - connect - close .....
+		if (!client.Init("localhost", 8111, 512, 10, 30, true)) // connect to TCP server
 		{
 			Sleep(100);
 			continue;

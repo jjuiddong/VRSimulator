@@ -13,10 +13,9 @@ bool CustomModuleCallback(const motion::sComponent *parentComp, const string *pr
 cNoLimits2::cNoLimits2()
 	: m_state(OFF)
 	, m_delaySeconds(0)
-	, m_lastLapTime(0)
-	, m_lapTime(0)
-	, m_lapTimeUpCount(0)
-	, m_sameLapTimeCount(0)
+	, m_lastSpeed(0)
+	, m_speedZeroCount(0)
+	, m_speedUpCount(0)
 	, m_hWnd(NULL)
 	, m_startTime(0)
 	, m_gameIdx(0)
@@ -95,21 +94,10 @@ int cNoLimits2::Update(const float deltaSeconds)
 		Delay(3, READY);
 		break;
 
-	case TIMEUP_STOP:
-		cController2::Get()->SetOutputFormat(0, PRT_STOP);
-		SendSerialPort();
-		reVal = 2;
-		Delay(3, TIMEUP_TOREADY);
-		break;
-
-	case TIMEUP_TOREADY:
-		CheckGameFinish();
-		break;
-
 	case STOP:
 		cController2::Get()->SetOutputFormat(0, PRT_STOP);
 		SendSerialPort();
-		Delay(3, SERVOOFF);
+		Delay(0, SERVOOFF);
 		break;
 
 	case SERVOOFF:
@@ -148,9 +136,8 @@ void cNoLimits2::Clear()
 {
 	m_state = OFF;
 	m_delaySeconds = 0;
-	m_lastLapTime = 0;
-	m_lapTimeUpCount = 0;
-	m_sameLapTimeCount = 0;
+	m_speedUpCount = 0;
+	m_speedZeroCount = 0;
 }
 
 
@@ -174,87 +161,83 @@ void cNoLimits2::SendSerialPort()
 
 void cNoLimits2::CheckGameStart()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	if (lapTime > m_lastLapTime)
-	{
-		++m_lapTimeUpCount;
-		if (m_lapTimeUpCount > 5)
+	const int gamestate = (int)script::g_symbols["@gamestate"].fVal;
+	const float speed = script::g_symbols["@speed"].fVal;
+
+ 	if ((gamestate == 3) && (speed > 0))
+ 	{
+		++m_speedUpCount;
+		if (m_speedUpCount > 5)
 		{
 			// start motion
 			m_state = START;
-			m_lapTimeUpCount = 0;
-			m_sameLapTimeCount = 0;
+			m_speedUpCount = 0;
+			m_speedZeroCount = 0;
 
 			if (0 == m_startTime)
 				m_startTime = timeGetTime();
 		}
-	}
+ 	}
 
-	m_lastLapTime = lapTime;
+	m_lastSpeed = speed;
 }
 
 
 void cNoLimits2::CheckGameStop()
 {
-	const float lapTime = script::g_symbols["@laptime"].fVal;
-	const float distance = script::g_symbols["@distance"].fVal;
-	const float limitTime = script::g_symbols["@limit_time"].fVal;
-	const float playTime = ((timeGetTime() - m_startTime) / 60000.f);
-	const bool isTimeOver = playTime > limitTime;
-
-	if (isTimeOver
-		|| ((lapTime == m_lastLapTime) && (m_lastLapTime == 0) && (distance != 0)))
+	const int gamestate = (int)script::g_symbols["@gamestate"].fVal;
+	const float speed = script::g_symbols["@speed"].fVal;
+	const float lapTime = script::g_symbols["@time"].fVal;
+ 
+	if (gamestate == 0)
 	{
-		if (isTimeOver)
-			m_state = TIMEUP_STOP; // when time over, motion stop
-		else
-			m_state = TOREADY; // when game end, motion stop
+		m_state = TOREADY; // when game end, motion stop
 
 		m_startTime = 0; // initialize when game end
-
-		string gameName[] = { "Dirt3", "GRID Autosport",  "DiRT Showdown" };
-		cController2::Get()->WriteGameResult(gameName[m_gameIdx], "UserID", "track name", m_lapTime, 0, 0);
-
-		const string dbIP = cController2::Get()->m_script.m_program->cmd->values["db_ip"];
-		if (!dbIP.empty())
-		{
-			const int dbPort = atoi(cController2::Get()->m_script.m_program->cmd->values["db_port"].c_str());
-			const string dbID = cController2::Get()->m_script.m_program->cmd->values["db_id"];
-			const string dbPasswd = cController2::Get()->m_script.m_program->cmd->values["db_passwd"];
-			const string databaseName = cController2::Get()->m_script.m_program->cmd->values["database_name"];
-			cController2::Get()->WriteGameResultToDB(dbIP, dbPort, dbID, dbPasswd, databaseName,
-				"Dirt3", "UserID", "track name", m_lapTime, 0, 0);
-		}
+		m_speedUpCount = 0;
+		m_speedZeroCount = 0;
 	}
-	else if (lapTime == m_lastLapTime) // when show pause menu, esc key or focus another window
+	else if (speed == 0)
 	{
-		++m_sameLapTimeCount;
-		if (m_sameLapTimeCount > 20)
+		++m_speedZeroCount;
+		if ((m_speedZeroCount > 150) && (lapTime > 6000)) // about 3~4 seconds, lapTime > 60 seconds
 		{
-			m_state = TOREADY;
+			m_state = TOREADY; // when game end, motion stop
+
+			// press ESC key
+			KeyDown(VK_ESCAPE);
+
+ 			m_startTime = 0; // initialize when game end
+			m_speedUpCount = 0;
+			m_speedZeroCount = 0;
+			cController2::Get()->WriteGameResult("NoLimits2", "UserID", "track name", lapTime, 0, 0);
 		}
-	}
-	else
-	{
-		m_sameLapTimeCount = 0;
-	}
-
-	script::g_symbols["@play_time"].type = script::FIELD_TYPE::T_FLOAT;
-	script::g_symbols["@play_time"].fVal = playTime;
-
-	m_lastLapTime = lapTime;
-	if (0 != lapTime)
-		m_lapTime = lapTime;
+ 	}
 }
 
 
-void cNoLimits2::CheckGameFinish()
+bool cNoLimits2::KeyDown(const int vkey)
 {
-	if (script::g_symbols["@laptime"].fVal == 0.f)
-	{
-		m_state = READY;
-		m_startTime = 0;
-	}
+	if (vkey <= 0)
+		return false;
+
+	INPUT input;
+	input.type = INPUT_KEYBOARD;
+	input.ki.wScan = MapVirtualKey((WORD)vkey, MAPVK_VK_TO_VSC);
+	input.ki.time = 0;
+	input.ki.dwExtraInfo = 0;
+	input.ki.wVk = (WORD)vkey;
+	input.ki.dwFlags = KEYEVENTF_SCANCODE;
+	SendInput(1, &input, sizeof(INPUT));
+
+	Sleep(30);
+
+	input.ki.dwFlags = KEYEVENTF_KEYUP | KEYEVENTF_SCANCODE;
+	SendInput(1, &input, sizeof(INPUT));
+
+	Sleep(30);
+
+	return true;
 }
 
 
@@ -278,3 +261,4 @@ bool CustomModuleCallback(const motion::sComponent *parentComp, const string *pr
 
 	return false;
 }
+

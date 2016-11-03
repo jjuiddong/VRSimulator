@@ -100,7 +100,7 @@ void SendTelemetry(network::cTCPClient &client)
 	BYTE sbuffer[10];
 	ZeroMemory(sbuffer, sizeof(sbuffer));
 	sbuffer[0] = 'N';
-	*(unsigned short*)(sbuffer + 2) = 5;
+	*(unsigned short*)(sbuffer + 2) = 5; // Get Telemetry Msg
 	*(unsigned int*)(sbuffer + 6) = n;
 	*(unsigned short*)(sbuffer + 7) = 0;
 	sbuffer[9] = 'L';
@@ -117,8 +117,10 @@ unsigned WINAPI NoLimits2ThreadFunc(void* arg)
 
 	while (wtInput->m_loop)
 	{
+		dbg::Log("connect to nolimits server... \n");
 		if (client.Init(wtInput->m_ip, wtInput->m_port, 86, 10, 10, true))
 			break;
+		dbg::Log("connect to nolimits server - fail \n");
 	}
 
 	SendTelemetry(client);
@@ -129,7 +131,7 @@ unsigned WINAPI NoLimits2ThreadFunc(void* arg)
 	{
 		if (state == 0)
 		{
-			network::sSockBuffer buffer;
+			network::sSockBuffer buffer; // recv from nolimits data
 			if (client.m_recvQueue.Front(buffer))
 			{
 				if (buffer.readLen < 86)
@@ -140,7 +142,7 @@ unsigned WINAPI NoLimits2ThreadFunc(void* arg)
 				}
 
 				if (wtInput->m_memPtr)
-					memcpy(wtInput->m_memPtr, buffer.buffer, 86);
+					memcpy(wtInput->m_memPtr, buffer.buffer, 86); // shared memory
 
 				client.m_recvQueue.Pop();
 				state = 1;

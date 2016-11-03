@@ -65,17 +65,11 @@
 sharedmemory_name = motionmem
 log = 0
 
-db_ip = 192.168.0.4
-db_port = 3306
-db_id = root
-db_passwd = 1111
-database_name = dirt3
-
 
 :input
 {
 	device = udp
-	bindport = 20777
+	bindport = 4123
 
 	:protocol
 	{
@@ -143,7 +137,7 @@ database_name = dirt3
 	{
 		# udp input
 
-		yaw_kp = 0.2
+		yaw_kp = 0.25
 		yaw_ki = 0.0
 		yaw_kd = -0.2
 
@@ -203,8 +197,8 @@ database_name = dirt3
 		spline_enable = 0
 
 		yaw_c1 = 0
-		yaw_c2 = 40000
-		yaw_c3 = 10000
+		yaw_c2 = -42000
+		yaw_c3 = 0
 
 		pitch_c1 = 0
 		pitch_c2 = 50000
@@ -249,8 +243,6 @@ database_name = dirt3
 		c2 = 30000
 		c3 = 0
 
-		spline_plot_sampling_rate = 10
-		spline_interpolation_rate = 10
 	}
 }
 
@@ -281,8 +273,6 @@ database_name = dirt3
 		c2 = -30000
 		c3 = 0
 
-		spline_plot_sampling_rate = 10
-		spline_interpolation_rate = 10
 	}
 }
 
@@ -301,7 +291,7 @@ database_name = dirt3
 		ki = 0.0
 		kd = 0
 
-		recover_enable = 1
+		recover_enable = 0
 		max_difference_enable = 0
 		recover_target = 0
 		recover_proportion = 0.02
@@ -313,8 +303,6 @@ database_name = dirt3
 		c2 = 3
 		c3 = 0
 
-		spline_plot_sampling_rate = 10
-		spline_interpolation_rate = 10
 	}
 }
 
@@ -326,7 +314,7 @@ database_name = dirt3
 	{
 		# amplitude modulation
 
-		kp = 0.5
+		kp = 1
 		ki = 0
 		kd = 0
 
@@ -395,29 +383,29 @@ floor(@yaw_fin) + floor(@heave_fin) + floor(@fan_fin)
 		"000"
 		"000"
 		@fan_fin, %3d
-		@checksum, %6d
 		"0"
 		Z
 	}
 
+
 	:format
 	{
-		A1000010000100001000010000100000000000000000000000600077Z
+		A1000010000100001000010000100000000000000000000007Z
 	}
 
 	:format
 	{
-		A1000010000100001000010000100000000000000000000000600088Z
+		A1000010000100001000010000100000000000000000000008Z
 	}
 
 	:format
 	{
-		A1000010000100001000010000100000000000000000000000600011Z
+		A1000010000100001000010000100000000000000000000001Z
 	}
 
 	:format
 	{
-		A1000010000100001000010000100000000000000000000000600022Z
+		A1000010000100001000010000100000000000000000000002Z
 	}
 
 }

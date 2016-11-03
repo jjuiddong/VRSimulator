@@ -9,7 +9,7 @@ cDirt3 g_dirt3;
 
 void GetGameName(wchar_t *gameName)
 {
-	wcscpy(gameName, L";DiRT 3;GRID Autosport;DiRT Showdown");
+	wcscpy(gameName, L";dirt3_game.exe;GRIDAutosport_avx.exe;showdown_avx.exe");
 }
 
 
@@ -22,7 +22,7 @@ void GetOutputGameName(wchar_t *gameTitleName)
 // Game Logo FilePath
 void GetGameLogoFilePath(wchar_t *gameLogFilePath)
 {
-	wcscpy(gameLogFilePath, L";./Plugins/Dirt3.jpg;./Plugins/Grid.jpg;./Plugins/Dirt Showdown.jpg");
+	wcscpy(gameLogFilePath, L";./Plugins/Dirt3.jpg;./Plugins/Grid2.jpg;./Plugins/Dirt Showdown.jpg");
 }
 
 

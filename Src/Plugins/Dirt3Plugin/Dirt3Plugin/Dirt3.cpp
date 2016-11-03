@@ -177,8 +177,8 @@ void cDirt3::CheckGameStart()
 			m_state = START;
 			m_lapTimeUpCount = 0;
 			m_sameLapTimeCount = 0;
-
-			if (0 == m_startTime)
+			
+			if ((lapTime < 10) || (m_startTime == 0))
 				m_startTime = timeGetTime();
 		}
 	}
@@ -202,8 +202,6 @@ void cDirt3::CheckGameStop()
 			m_state = TIMEUP_STOP; // when time over, motion stop
 		else
 			m_state = TOREADY; // when game end, motion stop
-
-		m_startTime = 0; // initialize when game end
 
 		string gameName[] = { "Dirt3", "GRID Autosport",  "DiRT Showdown" };
 		cController2::Get()->WriteGameResult(gameName[m_gameIdx], "UserID", "track name", m_lapTime, 0, 0);
@@ -246,6 +244,5 @@ void cDirt3::CheckGameFinish()
 	if (script::g_symbols["@laptime"].fVal == 0.f)
 	{
 		m_state = READY;
-		m_startTime = 0;
 	}
 }

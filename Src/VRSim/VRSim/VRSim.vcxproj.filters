@@ -16,12 +16,14 @@
     <ClInclude Include="VRSim.h" />
     <ClInclude Include="VRSimDlg.h" />
     <ClInclude Include="plugin.h" />
+    <ClInclude Include="findproccess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="VRSim.cpp" />
     <ClCompile Include="VRSimDlg.cpp" />
     <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="findproccess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VRSim.rc">

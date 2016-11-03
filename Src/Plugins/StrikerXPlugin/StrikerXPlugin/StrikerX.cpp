@@ -117,9 +117,9 @@ int cStrikerX::Update(const float deltaSeconds)
 		break;
 
 	case SERVOOFF:
-		cController2::Get()->SetOutputFormat(0, PRT_SERVOOFF);
-		SendSerialPort();
-		Sleep(1000);
+//		cController2::Get()->SetOutputFormat(0, PRT_SERVOOFF);
+//		SendSerialPort();
+//		Sleep(1000);
 		cController2::Get()->Stop();
 		Delay(0, OFF);
 		break;

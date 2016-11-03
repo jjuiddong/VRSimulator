@@ -9,7 +9,7 @@ cProjectCars g_projectCars;
 
 void GetGameName(wchar_t *gameName)
 {
-	wcscpy(gameName, L";Project CARS¢â");
+	wcscpy(gameName, L";pCARS64.exe");
 }
 
 

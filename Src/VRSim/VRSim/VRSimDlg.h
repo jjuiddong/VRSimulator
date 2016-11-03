@@ -2,6 +2,8 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "plugin.h"
+#include "findproccess.h"
+
 
 
 class CVRSimDlg : public CDialogEx
@@ -36,7 +38,11 @@ protected:
 	float m_delaySeconds;
 	bool m_isViewDetails;
 	vector<sPluginInfo> m_plugins;
+	cFindProcess m_findProc;
 
+	// graphic rendering
+	ULONG_PTR m_gdiPlusToken;
+	Gdiplus::Bitmap *m_image;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();

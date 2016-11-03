@@ -10,7 +10,7 @@ cStrikerX g_strikerX;
 
 void GetGameName(wchar_t *gameName)
 {
-	wcscpy(gameName, L";StrikerX");
+	wcscpy(gameName, L";Bugwar.exe");
 }
 
 
