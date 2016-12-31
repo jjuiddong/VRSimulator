@@ -1,0 +1,101 @@
+#
+# Dirt3 motion script
+#
+# component = input, output, mixer, module
+#
+# device = udp, tcp, serial, shm (shared memory)
+# 	- udp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- tcp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- serial
+#		- portnum = 1
+#		- baudrate = 115200
+#		- outputlog = 1
+#	- shm
+#		- shmname = name
+#		- startindex = 10001
+#
+#
+# module
+#	- inputvalue = $1
+#	- outputvalue = $2
+#
+#
+# mixer
+#	- default input value
+#		- @roll, @pitch, @yaw, @heave
+#	- default output value
+#		- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#
+#
+# functions
+#	- floor(x)
+#	- round(x)
+#	- atan(y, x)
+#	- clamp(value, min, max)
+#	- scale(value, center, rate)
+#
+#
+# global variable
+#	- sharedmemory_name = motionmem
+#	- log = 0
+#	gameresult database table
+#	- db_ip = 192.168.0.4
+#	- db_port = 3306
+#	- db_id = root
+#	- db_passwd = 11111
+#	- database_name = dirt3
+#
+#
+# motion variable
+#	- @roll, @pitch, @yaw, @heave
+#	- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
+#	- @motion_speed
+#	- @yaw_speed
+#	- @amplitude
+#	- @amplitude0
+#
+
+
+:output
+{
+	device = serial
+	portnum = 1
+	baudrate = 115200
+	outputlog = serialoutput.txt
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000000Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000007Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000008Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000001Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000002Z
+	}
+
+}
+
+
+

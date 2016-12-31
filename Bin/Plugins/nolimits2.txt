@@ -1,0 +1,416 @@
+#
+# Dirt3 motion script
+#
+# component = input, output, mixer, module
+#
+# device = udp, tcp, serial, shm (shared memory)
+# 	- udp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#		- bigendian = 1,0
+#	- tcp
+#		- ip = 127.0.0.1
+#		- port = 8888
+#		- input : bindport = 8888
+#	- serial
+#		- portnum = 1
+#		- baudrate = 115200
+#	- shm
+#		- shmname = name
+#		- startindex = 10001#
+#		- bigendian = 1,0
+#
+# module
+#	- inputvalue = $1
+#	- outputvalue = $2
+#
+#
+# mixer
+#	- default input value
+#		- @roll, @pitch, @yaw, @heave
+#	- default output value
+#		- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#
+#
+# functions
+#	- floor(x)
+#	- round(x)
+#	- atan(y, x)
+#	- clamp(value, min, max)
+#	- scale(value, center, rate)
+#
+#
+# global variable
+#	- sharedmemory_name = motionmem
+#	- log = 0
+#	gameresult database table
+#	- db_ip = 192.168.0.4
+#	- db_port = 3306
+#	- db_id = root
+#	- db_passwd = 11111
+#	- database_name = dirt3
+#
+#
+# motion variable
+#	- @roll, @pitch, @yaw, @heave
+#	- @roll_mod, @pitch_mod, @yaw_mod, @heave_mod
+#	- @roll_fin, @pitch_fin, @yaw_fin, @heave_fin
+#	- @motion_speed
+#	- @yaw_speed
+#	- @amplitude
+#	- @amplitude0
+#
+
+
+sharedmemory_name = motionmem
+log = 0
+
+
+:input
+{
+	device = custom
+	ip = 127.0.0.1
+	port = 15151
+
+	:protocol
+	{
+	}
+	
+	:math
+	{
+	}
+
+	:modulation
+	{
+	}
+}
+
+
+
+:input
+{
+	device = shm
+	shmname = nolimits2mem
+	startindex = 1
+	bigendian = 1
+
+	:protocol
+	{
+		1, int #$1, N
+		2, int #$2, get telemetry msg
+		4, int #$3, 
+		2, int #$4, recv bytes size
+		4, int #$5, state
+		4, int #$6, frame
+		4, int #$7, view mode
+		4, int #$8, coaster index
+		4, int #$9, coaster style id
+		4, int #$10, current train
+		4, int #$11, current car
+		4, int #$12, current seat
+		4, float #$13, speed
+		4, float #$14, pos x
+		4, float #$15, pos y
+		4, float #$16, pos z
+		4, float #$17, quaternion x
+		4, float #$18, quaternion y
+		4, float #$19, quaternion z
+		4, float #$20, quaternion w
+		4, float #$21, g-force x, sway
+		4, float #$22, g-force y, heave
+		4, float #$23, g-force z, surge
+		1, int # $24, L
+	}
+
+
+	:math
+	{
+		$var4 = $var4 + 1
+
+		@roll = quat2pitch($17, $18, $19, $20)
+		@pitch = quat2roll($17, $18, $19, $20)
+		@yaw = quat2yaw($17, $18, $19, $20)
+		@heave = $22 - 1
+		@speed = $13
+		@gamestate = $5
+		@time = $6
+	}
+
+
+	:modulation
+	{
+
+		# nolimits2 input
+
+		yaw_kp = 0.1
+		yaw_ki = 0.0
+		yaw_kd = 0
+
+		pitch_kp = 0.1
+		pitch_ki = 0.0
+		pitch_kd = 0
+
+		roll_kp = 0.1
+		roll_ki = 0.0
+		roll_kd = 0
+
+		heave_kp = 0.1
+		heave_ki = 0
+		heave_kd = 0.0
+
+
+		yaw_recover_enable = 1
+		yaw_max_difference_enable = 1
+		yaw_recover_target = 0
+		yaw_recover_proportion = 0.02
+		yaw_max_difference = 0.5
+		yaw_max_difference_proportion = 0.2
+		yaw_range = 6.283
+
+
+		pitch_recover_enable = 1
+		pitch_max_difference_enable = 1
+		pitch_recover_target = 0
+		pitch_recover_proportion = 0.05
+		pitch_max_difference = 3.1415
+		pitch_max_difference_proportion = 0.2
+		pitch_range = 6.283
+
+
+		roll_recover_enable = 1
+		roll_max_difference_enable = 1
+		roll_recover_target = 0
+		roll_recover_proportion = 0.05
+		roll_max_difference = 3.1415
+		roll_max_difference_proportion = 0.2
+		roll_range = 6.283
+
+
+		heave_recover_enable = 0
+		heave_max_difference_enable = 1
+		heave_recover_target = 0
+		heave_recover_proportion = 0.1
+		heave_max_difference = 100000
+		heave_max_difference_proportion = 0.2
+		heave_range = 1000000
+		heave_range_enable = 0
+		heave_range_max = 18.5
+		heave_range_min = -18.5
+
+
+		spline_enable = 0
+
+		yaw_c1 = 0
+		yaw_c2 = 30000
+		yaw_c3 = 0
+
+		pitch_c1 = 0
+		pitch_c2 = 30000
+		pitch_c3 = 10000
+
+		roll_c1 = 0
+		roll_c2 = 30000
+		roll_c3 = 10000
+
+		heave_c1 = 0
+		heave_c2 = 20000
+		heave_c3 = 10000
+
+	}
+}
+
+
+
+:module
+{
+	inputvalue = $23
+	outputvalue = $surge
+
+	:modulation
+	{
+		# surge speed modulation
+
+		kp = 0.1
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.01
+		max_difference = 100000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 0
+
+		c1 = 0
+		c2 = 50000
+		c3 = 0
+	}
+}
+
+
+:module
+{
+	inputvalue = $21
+	outputvalue = $sway
+
+	:modulation
+	{
+		# sway speed modulation
+
+		kp = 0.1
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.01
+		max_difference = 10000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 0
+
+		c1 = 0
+		c2 = -50000
+		c3 = 0
+	}
+}
+
+
+
+:module
+{
+	inputvalue = @speed
+	outputvalue = $fan
+
+	:modulation
+	{
+		# speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 0
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.02
+		max_difference = 10
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+
+		c1 = 0
+		c2 = 5
+		c3 = 0
+	}
+}
+
+
+
+:amplitude_module
+{
+	:modulation
+	{
+		# amplitude modulation
+
+		kp = 1
+		ki = 0
+		kd = 0
+
+		recover_enable = 0
+		max_difference_enable = 0
+		piclamp_enable = 0
+		range_enable = 1
+		min_range = 0
+		max_range = 10000
+
+		c1 = 0
+		c2 = 1
+		c3 = 0
+	}
+
+
+	:math
+	{
+
+		@checksum = @roll_fin + @pitch_fin + @yaw_fin + @heave_fin + @fan_fin
+		@checksum2 = floor(@roll_fin) + floor(@pitch_fin) +
+floor(@yaw_fin) + floor(@heave_fin) + floor(@fan_fin)
+	}
+}
+
+
+
+:mixer
+{
+	:init
+	{
+		@motion_speed = 1
+		@checksum = 0
+	}
+
+
+	:math
+	{
+		@roll_fin = clamp( scale( @roll_mod + $sway, 10000, @motion_speed), 0, 20000 )
+		@pitch_fin = clamp( scale( @pitch_mod + $surge, 10000, @motion_speed), 0, 20000 )
+		@yaw_fin = clamp( scale( (@yaw_mod * @yaw_speed) + 10000, 10000, @motion_speed), 0, 20000 )
+		@heave_fin = clamp( scale( @heave_mod, 10000, @motion_speed), 0, 20000 )
+		@fan_fin = clamp( $fan, 0, 100 )
+	}
+}
+
+
+:output
+{
+	device = serial
+	portnum = 1
+	baudrate = 115200
+
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		@fan_fin, %3d
+		"0"
+		Z
+	}
+
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000007Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000008Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000001Z
+	}
+
+	:format
+	{
+		A1000010000100001000010000100000000000000000000002Z
+	}
+
+}
+
+
+
