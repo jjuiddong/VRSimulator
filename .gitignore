@@ -226,5 +226,9 @@ Src/VRSim/VRSim/log.txt
 *.ipdb
 *.exp
 
-*.errlog.txt
-*.log.txt
+errlog.txt
+log.txt
+*.lib
+*.dll
+
+
